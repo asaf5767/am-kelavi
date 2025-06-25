@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const axios = require('axios');
 
 const app = express();
@@ -8,9 +7,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Google Sheets utility functions (inline to avoid import issues)
+// Google Sheets utility functions
 const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1-OhoadrXgz-FJZAgB_43Vdm8TXwgzaEL5pZi40pY0-w/export?format=csv&gid=0";
 
 // Parse CSV text into rows
@@ -275,11 +273,6 @@ app.get('/api/categories', async (req, res) => {
       error: 'Failed to fetch categories'
     });
   }
-});
-
-// Serve React app for all other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Error handling middleware
