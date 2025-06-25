@@ -8,10 +8,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Google Sheets utility functions
+// --- Google Sheets & Benefits Logic (All Inline) ---
 const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1-OhoadrXgz-FJZAgB_43Vdm8TXwgzaEL5pZi40pY0-w/export?format=csv&gid=0";
 
-// Parse CSV text into rows
 function parseCSV(csvText) {
   const lines = csvText.split('\n');
   const result = [];
@@ -48,7 +47,6 @@ function parseCSV(csvText) {
   return result;
 }
 
-// Fetch and process Google Sheets data
 async function fetchBenefitsData() {
   try {
     const response = await axios.get(GOOGLE_SHEETS_URL);
@@ -98,7 +96,6 @@ async function fetchBenefitsData() {
   }
 }
 
-// Enhanced benefits with display features
 function enhanceBenefitsForDisplay(benefits) {
   return benefits.map(benefit => {
     const detailsTruncated = benefit.details.length > 200 
@@ -120,8 +117,10 @@ function enhanceBenefitsForDisplay(benefits) {
     };
   });
 }
+// --- End of Inline Logic ---
 
-// Health check endpoint
+
+// --- API Endpoints ---
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
@@ -130,83 +129,35 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Benefits endpoints
-app.get('/api/benefits', async (req, res) => {
-  try {
-    const benefits = await fetchBenefitsData();
-    res.json({
-      success: true,
-      data: benefits,
-      count: benefits.length
-    });
-  } catch (error) {
-    console.error('Error fetching benefits:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch benefits data'
-    });
-  }
-});
-
 app.get('/api/benefits/enhanced', async (req, res) => {
   try {
     const benefits = await fetchBenefitsData();
     const enhancedBenefits = enhanceBenefitsForDisplay(benefits);
-    
-    res.json({
-      success: true,
-      data: enhancedBenefits,
-      count: enhancedBenefits.length
-    });
+    res.json({ success: true, data: enhancedBenefits, count: enhancedBenefits.length });
   } catch (error) {
-    console.error('Error fetching enhanced benefits:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch enhanced benefits data'
-    });
+    res.status(500).json({ success: false, error: 'Failed to fetch enhanced benefits data' });
   }
 });
 
 app.get('/api/benefits/search', async (req, res) => {
   try {
-    const { q: searchQuery = '', category = '', audience = '' } = req.query;
-    
+    const { q: searchQuery = '', category = '' } = req.query;
     const benefits = await fetchBenefitsData();
     const enhancedBenefits = enhanceBenefitsForDisplay(benefits);
     
     const filteredBenefits = enhancedBenefits.filter(benefit => {
       let matches = true;
-      
       if (searchQuery) {
         const searchableText = `${benefit.organization} ${benefit.details} ${benefit.category} ${benefit.targetAudience}`.toLowerCase();
-        if (!searchableText.includes(searchQuery.toLowerCase())) {
-          matches = false;
-        }
+        if (!searchableText.includes(searchQuery.toLowerCase())) matches = false;
       }
-      
-      if (category && category !== benefit.category) {
-        matches = false;
-      }
-      
-      if (audience && !benefit.targetAudience.toLowerCase().includes(audience.toLowerCase())) {
-        matches = false;
-      }
-      
+      if (category && category !== benefit.category) matches = false;
       return matches;
     });
     
-    res.json({
-      success: true,
-      data: filteredBenefits,
-      count: filteredBenefits.length,
-      filters: { search: searchQuery, category, audience }
-    });
+    res.json({ success: true, data: filteredBenefits, count: filteredBenefits.length });
   } catch (error) {
-    console.error('Error searching benefits:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to search benefits'
-    });
+    res.status(500).json({ success: false, error: 'Failed to search benefits' });
   }
 });
 
@@ -214,45 +165,25 @@ app.get('/api/benefits/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const benefits = await fetchBenefitsData();
-    
     const benefit = benefits.find(b => b.id === id);
     
     if (!benefit) {
-      return res.status(404).json({
-        success: false,
-        error: 'Benefit not found'
-      });
+      return res.status(404).json({ success: false, error: 'Benefit not found' });
     }
     
-    const detailedBenefit = {
-      ...benefit,
-      targetAudienceArray: benefit.targetAudience
-        ? benefit.targetAudience.split(',').map(audience => audience.trim()).filter(Boolean)
-        : []
-    };
-    
-    res.json({
-      success: true,
-      benefit: detailedBenefit
-    });
+    res.json({ success: true, benefit });
   } catch (error) {
-    console.error('Error fetching benefit details:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch benefit details'
-    });
+    res.status(500).json({ success: false, error: 'Failed to fetch benefit details' });
   }
 });
 
-// Categories endpoint
 app.get('/api/categories', async (req, res) => {
   try {
     const benefits = await fetchBenefitsData();
-    
     const categoryCount = {};
     for (const benefit of benefits) {
       const category = benefit.category ? benefit.category.trim() : '';
-      if (category && category !== '') {
+      if (category) {
         categoryCount[category] = (categoryCount[category] || 0) + 1;
       }
     }
@@ -261,19 +192,13 @@ app.get('/api/categories', async (req, res) => {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
     
-    res.json({
-      success: true,
-      categories: categoryList,
-      total_categories: categoryList.length
-    });
+    res.json({ success: true, categories: categoryList });
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch categories'
-    });
+    res.status(500).json({ success: false, error: 'Failed to fetch categories' });
   }
 });
+// --- End of API Endpoints ---
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
