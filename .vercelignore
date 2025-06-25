@@ -1,0 +1,9 @@
+# Legacy directories that should not be deployed
+benefits-backend/
+benefits-website/
+frontend/node_modules/
+*.log
+__pycache__/
+*.pyc
+.env
+.git/
