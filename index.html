@@ -879,6 +879,18 @@
 
         const handleCategoryChange = (category) => {
           setSelectedCategory(category === selectedCategory ? '' : category);
+          
+          // Auto-scroll to results section after a short delay
+          setTimeout(() => {
+            const resultsSection = document.querySelector('.mobile-results');
+            if (resultsSection) {
+              resultsSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+              });
+            }
+          }, 100);
         };
 
         const handleSearchChange = (query) => {
