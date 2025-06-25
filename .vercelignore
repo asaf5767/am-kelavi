@@ -3,11 +3,13 @@ benefits-backend/
 benefits-website/
 frontend/
 
+# Separate route files (now inline in api/index.js)
+routes/
+utils/
+
 # Development files
 server.js
 *.md
-RESTRUCTURE_PLAN.md
-IMPLEMENTATION.md
 app.py
 favicon.ico
 requirements.txt
