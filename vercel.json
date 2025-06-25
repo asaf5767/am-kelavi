@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "benefits-backend/src/main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "benefits-website/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "benefits-backend/src/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "benefits-website/index.html"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": "benefits-backend/src"
+  }
+}
