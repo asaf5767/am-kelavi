@@ -22,3 +22,5 @@ __pycache__/
 *.pyc
 .env
 .git/
+
+# NOTE: public/ folder should NOT be ignored - it contains the React app
