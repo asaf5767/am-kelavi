@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>הקלות והטבות בעקבות מבצע עם כלביא</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'calm-blue': '#3B82F6',
+              'calm-green': '#10B981',
+              'calm-purple': '#8B5CF6',
+              'calm-orange': '#F59E0B',
+              'calm-red': '#EF4444',
+              'calm-gray': '#6B7280'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        direction: rtl;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #F9FAFB;
+      }
+      
+      /* Clean, minimal borders */
+      .clean-border { border: 2px solid #E5E7EB; }
+      .clean-border-thick { border: 3px solid #D1D5DB; }
+      .clean-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+      .clean-shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+      
+      /* Subtle hover effects */
+      .clean-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
+      
+      /* Focus states for accessibility */
+      .clean-focus:focus {
+        outline: 2px solid #3B82F6;
+        outline-offset: 2px;
+      }
+      
+      /* Card styles */
+      .clean-card {
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+      }
+      
+      .clean-card:hover {
+        border-color: #D1D5DB;
+        box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+      
+      /* Button styles */
+      .clean-btn {
+        border: 2px solid transparent;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .clean-btn:hover {
+        transform: translateY(-1px);
+      }
+      
+      .clean-btn:active {
+        transform: translateY(0);
+      }
+      
+      /* Loading animation - much calmer */
+      .calm-loading {
+        animation: calmSpin 2s linear infinite;
+      }
+      
+      @keyframes calmSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      /* Reduced motion for accessibility */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+      
+      // BenefitCard Component - Clean and Calm
+      const BenefitCard = ({ benefit, onReadMore }) => {
+        const {
+          organization,
+          category,
+          subcategory,
+          detailsTruncated,
+          hasMoreDetails,
+          targetAudienceDisplayed,
+          hasMoreAudience,
+          additionalAudienceCount,
+          detailsLink,
+          lastUpdated
+        } = benefit;
+
+        return React.createElement('div', {
+          className: "clean-card p-6 clean-hover"
+        }, [
+          // Header
+          React.createElement('div', { className: "mb-4", key: "header" }, [
+            React.createElement('h3', {
+              className: "text-xl font-semibold text-gray-900 mb-3",
+              key: "title"
+            }, organization),
+            
+            // Categories - calm colors
+            React.createElement('div', { className: "flex flex-wrap gap-2 mb-3", key: "categories" }, [
+              category && React.createElement('span', {
+                key: "category",
+                className: "inline-flex items-center px-3 py-1 rounded-full text-sm bg-calm-blue text-white"
+              }, category),
+              subcategory && React.createElement('span', {
+                key: "subcategory", 
+                className: "inline-flex items-center px-3 py-1 rounded-full text-sm bg-calm-green text-white"
+              }, subcategory)
+            ]),
+
+            // Last Updated
+            lastUpdated && React.createElement('div', {
+              className: "text-sm text-gray-500 mb-3",
+              key: "updated"
+            }, `עודכן: ${lastUpdated}`)
+          ]),
+
+          // Description
+          React.createElement('div', { className: "mb-4", key: "description" }, [
+            React.createElement('p', {
+              className: "text-gray-700 leading-relaxed mb-3",
+              key: "text"
+            }, detailsTruncated),
+            
+            hasMoreDetails && React.createElement('button', {
+              key: "readmore",
+              onClick: onReadMore,
+              className: "clean-btn bg-calm-blue text-white hover:bg-blue-600 clean-focus"
+            }, "קרא עוד")
+          ]),
+
+          // Target Audience
+          targetAudienceDisplayed && targetAudienceDisplayed.length > 0 && React.createElement('div', {
+            className: "mb-4",
+            key: "audience"
+          }, [
+            React.createElement('div', {
+              className: "text-sm font-medium text-gray-700 mb-2",
+              key: "label"
+            }, "קהל יעד:"),
+            
+            React.createElement('div', { className: "flex flex-wrap gap-2", key: "tags" }, [
+              ...targetAudienceDisplayed.map((audience, index) =>
+                React.createElement('span', {
+                  key: index,
+                  className: "px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 border border-gray-200"
+                }, audience)
+              ),
+              
+              hasMoreAudience && additionalAudienceCount > 0 && React.createElement('span', {
+                key: "more",
+                className: "px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600 font-medium"
+              }, `+${additionalAudienceCount} נוספים`)
+            ])
+          ]),
+
+          // Action Button
+          detailsLink && React.createElement('div', {
+            className: "pt-4 border-t border-gray-200",
+            key: "action"
+          }, React.createElement('a', {
+            href: detailsLink,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "clean-btn bg-gray-900 text-white hover:bg-gray-800 w-full text-center clean-focus"
+          }, "מעבר לשירות"))
+        ]);
+      };
+
+      // BenefitModal Component - Clean Design
+      const BenefitModal = ({ benefit, onClose }) => {
+        useEffect(() => {
+          const handleEscape = (e) => {
+            if (e.key === 'Escape') onClose();
+          };
+          document.addEventListener('keydown', handleEscape);
+          return () => document.removeEventListener('keydown', handleEscape);
+        }, [onClose]);
+
+        const handleBackdropClick = (e) => {
+          if (e.target === e.currentTarget) onClose();
+        };
+
+        return React.createElement('div', {
+          className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50",
+          onClick: handleBackdropClick
+        }, React.createElement('div', {
+          className: "bg-white rounded-lg clean-shadow-lg max-w-4xl w-full max-h-[90vh] overflow-hidden clean-border"
+        }, [
+          // Header
+          React.createElement('div', {
+            className: "bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center",
+            key: "header"
+          }, [
+            React.createElement('h2', {
+              className: "text-2xl font-semibold text-gray-900",
+              key: "title"
+            }, benefit.organization),
+            React.createElement('button', {
+              key: "close",
+              onClick: onClose,
+              className: "clean-btn bg-gray-200 text-gray-700 hover:bg-gray-300 clean-focus"
+            }, "✕ סגור")
+          ]),
+
+          // Content
+          React.createElement('div', {
+            className: "p-6 overflow-y-auto max-h-[calc(90vh-180px)]",
+            key: "content"
+          }, [
+            React.createElement('div', {
+              className: "mb-6",
+              key: "details"
+            }, [
+              React.createElement('h3', {
+                className: "text-lg font-semibold text-gray-900 mb-3",
+                key: "title"
+              }, "פרטים מלאים"),
+              React.createElement('div', {
+                className: "prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-line",
+                key: "text"
+              }, benefit.details)
+            ]),
+
+            benefit.targetAudienceArray && benefit.targetAudienceArray.length > 0 && React.createElement('div', {
+              className: "mb-6",
+              key: "audience"
+            }, [
+              React.createElement('h3', {
+                className: "text-lg font-semibold text-gray-900 mb-3",
+                key: "title"
+              }, "קהל יעד"),
+              React.createElement('div', {
+                className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3",
+                key: "list"
+              }, benefit.targetAudienceArray.map((audience, index) =>
+                React.createElement('span', {
+                  key: index,
+                  className: "px-3 py-2 rounded-lg text-sm bg-blue-50 text-blue-800 border border-blue-200"
+                }, audience)
+              ))
+            ])
+          ]),
+
+          // Footer
+          React.createElement('div', {
+            className: "bg-gray-50 px-6 py-4 border-t border-gray-200",
+            key: "footer"
+          }, React.createElement('div', {
+            className: "flex flex-col md:flex-row gap-3"
+          }, [
+            benefit.detailsLink && React.createElement('a', {
+              key: "link",
+              href: benefit.detailsLink,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "flex-1 clean-btn bg-calm-blue text-white hover:bg-blue-600 text-center clean-focus"
+            }, "מעבר לשירות"),
+            React.createElement('button', {
+              key: "close",
+              onClick: onClose,
+              className: "clean-btn bg-gray-200 text-gray-700 hover:bg-gray-300 clean-focus"
+            }, "סגור")
+          ]))
+        ]));
+      };
+
+      // CategoryFilter Component - Enhanced with Icons and Better Layout
+      const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
+        // Icon mapping for categories
+        const categoryIcons = {
+          'זכויות': '⚖️',
+          'מידע': '📋',
+          'כניסה/יציאה מישראל': '✈️',
+          'בנקים': '🏦',
+          'הגשת תביעה': '📝',
+          'טיפול נפשי': '🧠',
+          'קבלת קהל': '👥',
+          'עבודה במלחמה': '💼',
+          'עזרה הדדית': '🤝',
+          'חינמי': '🆓',
+          'רפואי': '🏥',
+          'זכויות והטבות לעסקים/עצמאיים': '🏢',
+          'עוקץ': '⚠️',
+          'זכויות מס': '💰',
+          'תלונות': '📢',
+          'סיוע משפטי': '⚖️'
+        };
+
+        // Use the Static Shell pattern - populate the existing grid container
+        useEffect(() => {
+          const categoryGrid = document.getElementById('category-grid');
+          
+          if (categoryGrid && categories.length > 0) {
+            // Generate ONLY the HTML for the buttons
+            const buttonsHtml = [
+              // "All" button
+              `<button onclick="window.handleCategoryChange('')" class="${
+                selectedCategory === ''
+                  ? 'bg-calm-blue text-white'
+                  : 'bg-white text-gray-800 active:bg-gray-50'
+              } p-3 sm:p-4 rounded-lg sm:rounded-xl flex flex-col items-center justify-center aspect-square border-2 ${
+                selectedCategory === '' ? 'border-calm-blue' : 'border-gray-200'
+              } min-h-[80px] sm:min-h-[100px] touch-manipulation">
+                <span class="text-2xl sm:text-3xl mb-1 sm:mb-2">🌟</span>
+                <span class="font-medium text-xs sm:text-sm text-center leading-tight">הכל</span>
+              </button>`,
+              
+              // Category buttons
+              ...categories.map((category) => {
+                const icon = categoryIcons[category.name] || '📁';
+                return `<button onclick="window.handleCategoryChange('${category.name}')" class="${
+                  selectedCategory === category.name
+                    ? 'bg-calm-blue text-white'
+                    : 'bg-white text-gray-800 active:bg-gray-50'
+                } p-3 sm:p-4 rounded-lg sm:rounded-xl flex flex-col items-center justify-center aspect-square border-2 ${
+                  selectedCategory === category.name ? 'border-calm-blue' : 'border-gray-200'
+                } min-h-[80px] sm:min-h-[100px] touch-manipulation">
+                  <span class="text-2xl sm:text-3xl mb-1 sm:mb-2">${icon}</span>
+                  <span class="font-medium text-xs sm:text-sm text-center leading-tight px-1">${category.name}</span>
+                </button>`;
+              })
+            ].join('');
+
+            // Set the innerHTML of the existing shell - this adds the buttons inside the correctly styled container
+            categoryGrid.innerHTML = buttonsHtml;
+          }
+        }, [categories, selectedCategory]);
+
+        // Return empty div since we're populating the static shell directly
+        return React.createElement('div', {});
+      };
+
+      // SearchBar Component - Mobile-Optimized
+      const SearchBar = ({ value, onChange, placeholder }) => {
+        return React.createElement('div', {
+          className: "relative max-w-2xl mx-auto"
+        }, [
+          React.createElement('div', { className: "relative", key: "input" }, [
+            React.createElement('input', {
+              key: "field",
+              type: "text",
+              value: value,
+              onChange: (e) => onChange(e.target.value),
+              placeholder: placeholder,
+              className: "border-2 border-gray-300 focus:border-calm-blue focus:outline-none block w-full px-4 py-4 sm:py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 text-right text-base sm:text-sm touch-manipulation",
+              dir: "rtl"
+            }),
+            value && React.createElement('button', {
+              key: "clear",
+              onClick: () => onChange(''),
+              className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 active:text-gray-600 p-2 touch-manipulation"
+            }, "✕")
+          ]),
+          React.createElement('div', {
+            className: "mt-2 text-xs sm:text-sm text-gray-500 text-center px-2",
+            key: "hint"
+          }, "חפשו לפי מילות מפתח, שם ארגון, או סוג השירות")
+        ]);
+      };
+
+      // Main App Component - Clean Design
+      const App = () => {
+        const [benefits, setBenefits] = useState([]);
+        const [categories, setCategories] = useState([]);
+        const [selectedCategory, setSelectedCategory] = useState('');
+        const [searchQuery, setSearchQuery] = useState('');
+        const [loading, setLoading] = useState(true);
+        const [selectedBenefit, setSelectedBenefit] = useState(null);
+        const [showModal, setShowModal] = useState(false);
+
+        useEffect(() => {
+          fetchCategories();
+        }, []);
+
+        useEffect(() => {
+          fetchBenefits();
+        }, [selectedCategory, searchQuery]);
+
+        // Update categories when they change
+        useEffect(() => {
+          if (categories.length > 0) {
+            // Set up global handler
+            window.handleCategoryChange = handleCategoryChange;
+            // Trigger CategoryFilter to populate the static shell
+            CategoryFilter({ categories, selectedCategory, onCategoryChange: handleCategoryChange });
+          }
+        }, [categories, selectedCategory]);
+
+        const fetchCategories = async () => {
+          try {
+            const response = await fetch('/api/categories');
+            const data = await response.json();
+            if (data.success) {
+              setCategories(data.categories);
+            }
+          } catch (error) {
+            console.error('Error fetching categories:', error);
+          }
+        };
+
+        const fetchBenefits = async () => {
+          setLoading(true);
+          try {
+            let url = '/api/benefits/enhanced';
+            const params = new URLSearchParams();
+            
+            if (selectedCategory) params.append('category', selectedCategory);
+            if (searchQuery) params.append('q', searchQuery);
+            
+            if (params.toString()) {
+              url = `/api/benefits/search?${params.toString()}`;
+            }
+
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+              setBenefits(data.data);
+            }
+          } catch (error) {
+            console.error('Error fetching benefits:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        const fetchBenefitDetails = async (benefitId) => {
+          try {
+            const response = await fetch(`/api/benefits/${benefitId}`);
+            const data = await response.json();
+            if (data.success) {
+              setSelectedBenefit(data.benefit);
+              setShowModal(true);
+            }
+          } catch (error) {
+            console.error('Error fetching benefit details:', error);
+          }
+        };
+
+        const handleCategoryChange = (category) => {
+          setSelectedCategory(category === selectedCategory ? '' : category);
+        };
+
+        const handleSearchChange = (query) => {
+          setSearchQuery(query);
+        };
+
+        const handleReadMore = (benefitId) => {
+          fetchBenefitDetails(benefitId);
+        };
+
+        const closeModal = () => {
+          setShowModal(false);
+          setSelectedBenefit(null);
+        };
+
+        return React.createElement('div', {
+          className: "min-h-screen bg-gray-50 rtl"
+        }, [
+          // Header
+          React.createElement('header', {
+            className: "bg-white clean-border-thick clean-shadow-lg mb-8",
+            key: "header"
+          }, React.createElement('div', {
+            className: "max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8"
+          }, React.createElement('div', {
+            className: "text-center"
+          }, [
+            React.createElement('h1', {
+              className: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight",
+              key: "title"
+            }, "הקלות והטבות בעקבות מבצע עם כלביא"),
+            React.createElement('div', {
+              className: "max-w-4xl mx-auto",
+              key: "intro"
+            }, [
+              React.createElement('p', {
+                className: "text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed mb-3 sm:mb-4 px-2",
+                key: "description"
+              }, "מאגר הטבות והקלות לטובת הקהילה, על מנת לדעת בקלות \"מה מגיע למי ואיך מקבלים מידע נוסף\""),
+              React.createElement('p', {
+                className: "text-sm sm:text-base md:text-lg text-gray-600 px-2",
+                key: "purpose"
+              }, "כאן תמצאו מידע מרוכז על כל ההטבות והשירותים הזמינים לכם - מהממשלה, מארגונים וממוסדות שונים")
+            ])
+          ]))),
+
+          // Search Section
+          React.createElement('section', {
+            className: "mb-6 sm:mb-8 px-3 sm:px-6 lg:px-8",
+            key: "search"
+          }, React.createElement('div', {
+            className: "max-w-7xl mx-auto"
+          }, [
+            React.createElement('h2', {
+              className: "text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-3 sm:mb-4 text-center",
+              key: "search-title"
+            }, "חיפוש"),
+            React.createElement(SearchBar, {
+              value: searchQuery,
+              onChange: handleSearchChange,
+              placeholder: "הקלידו כאן מה אתם מחפשים..."
+            })
+          ])),
+
+          // Categories Section
+          React.createElement('section', {
+            className: "mb-6 sm:mb-8 px-3 sm:px-6 lg:px-8",
+            key: "categories"
+          }, React.createElement('div', {
+            className: "max-w-7xl mx-auto"
+          }, [
+            React.createElement('h2', {
+              className: "text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-3 sm:mb-4 text-center",
+              key: "title"
+            }, "קטגוריות"),
+            // Static Shell - This div has all the responsive classes it will ever need
+            React.createElement('div', {
+              key: "static-shell",
+              id: "category-grid",
+              className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center"
+            }),
+            React.createElement(CategoryFilter, {
+              key: "filter",
+              categories: categories,
+              selectedCategory: selectedCategory,
+              onCategoryChange: handleCategoryChange
+            })
+          ])),
+
+          // Results Section
+          React.createElement('main', {
+            className: "max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-8 sm:pb-12",
+            key: "main"
+          }, [
+            // Results Header
+            React.createElement('div', {
+              className: "flex flex-col md:flex-row justify-between items-center mb-8 bg-white clean-border rounded-lg p-6 clean-shadow",
+              key: "resultsHeader"
+            }, [
+              React.createElement('h2', {
+                className: "text-2xl font-semibold text-gray-900 mb-4 md:mb-0",
+                key: "title"
+              }, searchQuery ? `תוצאות חיפוש עבור "${searchQuery}"` :
+                 selectedCategory ? `הטבות בקטגוריה "${selectedCategory}"` :
+                 'כל ההטבות'),
+              !loading && React.createElement('div', {
+                className: "bg-calm-blue text-white px-4 py-2 rounded-lg font-semibold",
+                key: "count"
+              }, `${benefits.length} תוצאות`)
+            ]),
+
+            // Loading State
+            loading ? React.createElement('div', {
+              className: "flex justify-center items-center py-20",
+              key: "loading"
+            }, [
+              React.createElement('div', {
+                className: "calm-loading rounded-full h-12 w-12 border-4 border-calm-blue border-t-transparent",
+                key: "spinner"
+              }),
+              React.createElement('span', {
+                className: "mr-4 text-lg text-gray-600",
+                key: "text"
+              }, "טוען...")
+            ]) :
+            
+            // Benefits Grid
+            benefits.length > 0 ? React.createElement('div', {
+              className: "grid gap-6 md:grid-cols-2 lg:grid-cols-3",
+              key: "grid"
+            }, benefits.map((benefit) =>
+              React.createElement(BenefitCard, {
+                key: benefit.id,
+                benefit: benefit,
+                onReadMore: () => handleReadMore(benefit.id)
+              })
+            )) :
+            
+            // Empty State
+            React.createElement('div', {
+              className: "text-center py-20 bg-white clean-border rounded-lg clean-shadow",
+              key: "empty"
+            }, [
+              React.createElement('div', {
+                className: "text-6xl mb-4 text-gray-300",
+                key: "icon"
+              }, "🔍"),
+              React.createElement('h3', {
+                className: "text-xl font-semibold text-gray-900 mb-2",
+                key: "title"
+              }, "לא נמצאו תוצאות"),
+              React.createElement('p', {
+                className: "text-gray-600",
+                key: "subtitle"
+              }, "נסו לשנות את מילות החיפוש או את הקטגוריה שנבחרה")
+            ])
+          ]),
+
+          // Modal
+          showModal && selectedBenefit && React.createElement(BenefitModal, {
+            key: "modal",
+            benefit: selectedBenefit,
+            onClose: closeModal
+          }),
+
+          // Footer with Credits
+          React.createElement('footer', {
+            className: "bg-white clean-border-thick clean-shadow-lg mt-16",
+            key: "footer"
+          }, React.createElement('div', {
+            className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+          }, [
+            React.createElement('div', {
+              className: "grid md:grid-cols-2 gap-8",
+              key: "credits"
+            }, [
+              // Data Credit
+              React.createElement('div', {
+                className: "text-center md:text-right",
+                key: "data-credit"
+              }, [
+                React.createElement('h3', {
+                  className: "text-lg font-semibold text-gray-900 mb-3",
+                  key: "title"
+                }, "📊 מאגר המידע"),
+                React.createElement('p', {
+                  className: "text-gray-700 mb-3",
+                  key: "description"
+                }, "מאגר המידע נבנה ומתעדכן על ידי מוֹרָן תְּסַדֵּר"),
+                React.createElement('div', {
+                  className: "flex flex-wrap justify-center md:justify-start gap-3",
+                  key: "links"
+                }, [
+                  React.createElement('a', {
+                    key: "telegram",
+                    href: "https://t.me/haravotbe",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "clean-btn bg-blue-500 text-white hover:bg-blue-600 clean-focus"
+                  }, "📱 טלגרם"),
+                  React.createElement('a', {
+                    key: "facebook",
+                    href: "https://www.facebook.com/moranfixit/",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "clean-btn bg-blue-600 text-white hover:bg-blue-700 clean-focus"
+                  }, "📘 פייסבוק"),
+                  React.createElement('a', {
+                    key: "whatsapp",
+                    href: "https://wa.me/972524244298",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "clean-btn bg-green-500 text-white hover:bg-green-600 clean-focus"
+                  }, "💬 וואטסאפ")
+                ])
+              ]),
+
+              // Development Credit
+              React.createElement('div', {
+                className: "text-center md:text-left",
+                key: "dev-credit"
+              }, [
+                React.createElement('h3', {
+                  className: "text-lg font-semibold text-gray-900 mb-3",
+                  key: "title"
+                }, "💻 פיתוח האתר"),
+                React.createElement('p', {
+                  className: "text-gray-700 mb-3",
+                  key: "description"
+                }, "האתר פותח על ידי אסף עקיבא"),
+                React.createElement('a', {
+                  key: "linkedin",
+                  href: "https://www.linkedin.com/in/assafakiva",
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  className: "clean-btn bg-blue-700 text-white hover:bg-blue-800 clean-focus"
+                }, "💼 לינקדאין")
+              ])
+            ]),
+
+            // Divider and Final Note
+            React.createElement('div', {
+              className: "border-t border-gray-200 pt-6 mt-6 text-center",
+              key: "final-note"
+            }, [
+              React.createElement('p', {
+                className: "text-gray-500 text-sm",
+                key: "note"
+              }, "🤝 פרויקט קהילתי למען הציבור - מידע מעודכן ונגיש לכל אזרח")
+            ])
+          ]))
+        ]);
+      };
+
+      // Global handler for category changes - needed for onclick events in static shell
+      window.handleCategoryChange = null;
+
+      // Render the app
+      ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+  </body>
+</html>
