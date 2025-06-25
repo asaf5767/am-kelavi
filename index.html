@@ -35,66 +35,114 @@
       }
     </script>
     <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+      
       body {
         direction: rtl;
         font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         background: #F8FAFC;
         color: #334155;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       
       .clean-card {
         background: white;
         border: 2px solid #E5E7EB;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
       }
       
       .clean-card:hover {
-        border-color: #D1D5DB;
-        box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
+        border-color: #10B981;
+        box-shadow: 0 12px 32px rgba(16, 185, 129, 0.12);
+        transform: translateY(-4px);
       }
       
       .clean-btn {
         border: 2px solid transparent;
-        border-radius: 6px;
-        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        padding: 0.875rem 1.5rem;
         font-weight: 600;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         text-decoration: none;
-        display: inline-block;
-        min-height: 44px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
+        min-height: 48px;
+        cursor: pointer;
+        touch-action: manipulation;
+        user-select: none;
       }
       
       .clean-btn:hover {
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       }
       
       .category-btn {
-        min-height: 80px;
-        min-width: 80px;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 20px;
         padding: 1rem;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        border-radius: 12px;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
         touch-action: manipulation;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      
+      .category-btn:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #10B981, #059669);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+      }
+      
+      .category-btn:hover:before {
+        opacity: 0.1;
+      }
+      
+      .category-btn.active:before {
+        opacity: 1;
       }
       
       .category-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2);
+        border-color: #10B981;
+      }
+      
+      .category-btn.active {
+        color: white;
+        border-color: #059669;
+        box-shadow: 0 12px 32px rgba(16, 185, 129, 0.3);
         transform: translateY(-2px);
       }
       
-      .category-icon {
-        width: 2.5rem;
-        height: 2.5rem;
-        margin-bottom: 0.5rem;
+      .category-btn > * {
+        position: relative;
+        z-index: 1;
       }
       
       .calm-loading {
@@ -105,35 +153,403 @@
         animation: pulse-heartbeat 2s ease-in-out infinite;
       }
       
-      /* Mobile-specific styles */
-      @media (max-width: 640px) {
+      /* Mobile-First Responsive Design */
+      
+      /* Mobile Styles (Default) */
+      .mobile-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0;
+      }
+      
+      .mobile-header {
+        background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+        border-bottom: 2px solid #E5E7EB;
+        padding: 1.5rem 1rem;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      }
+      
+      .mobile-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.2;
+        text-align: center;
+      }
+      
+      .mobile-header p {
+        font-size: 1rem;
+        color: #6B7280;
+        margin: 0;
+        text-align: center;
+        opacity: 0.9;
+      }
+      
+      .mobile-search {
+        padding: 1rem;
+        background: white;
+        margin-bottom: 1rem;
+      }
+      
+      .mobile-search input {
+        width: 100%;
+        height: 56px;
+        padding: 0 1rem 0 3rem;
+        border: 2px solid #E5E7EB;
+        border-radius: 16px;
+        font-size: 16px;
+        background: #FAFAFA;
+        transition: all 0.3s ease;
+      }
+      
+      .mobile-search input:focus {
+        outline: none;
+        border-color: #10B981;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+      }
+      
+      .mobile-categories {
+        padding: 0 1rem 1.5rem 1rem;
+      }
+      
+      .mobile-categories h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 1rem 0;
+        text-align: center;
+      }
+      
+      .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+      }
+      
+      .category-btn {
+        min-height: 80px;
+        aspect-ratio: 1;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      
+      .category-icon {
+        width: 24px !important;
+        height: 24px !important;
+        margin-bottom: 0.25rem;
+      }
+      
+      .mobile-results {
+        padding: 0 1rem;
+      }
+      
+      .mobile-results-header {
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .mobile-results-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0;
+      }
+      
+      .mobile-results-count {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        align-self: flex-end;
+        min-width: fit-content;
+      }
+      
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .benefit-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+      
+      .benefit-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 0.75rem 0;
+        line-height: 1.3;
+      }
+      
+      .benefit-description {
+        font-size: 0.875rem;
+        color: #4B5563;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      
+      .benefit-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      .benefit-tag {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      
+      .benefit-action {
+        background: linear-gradient(135deg, #3B82F6, #2563EB);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+      
+      .benefit-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+      }
+      
+      .mobile-fab {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #10B981, #059669);
+        border-radius: 28px;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+      
+      .mobile-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 32px rgba(16, 185, 129, 0.5);
+      }
+      
+      .mobile-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      
+      .mobile-modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+      
+      .mobile-modal-header {
+        background: linear-gradient(135deg, #F8FAFC, #E5E7EB);
+        padding: 1.5rem;
+        border-bottom: 2px solid #E5E7EB;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .mobile-modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0;
+      }
+      
+      .mobile-modal-close {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        border: none;
+        background: #F3F4F6;
+        color: #6B7280;
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+      
+      .mobile-modal-close:hover {
+        background: #E5E7EB;
+        color: #374151;
+      }
+      
+      .mobile-modal-body {
+        padding: 1.5rem;
+        overflow-y: auto;
+        max-height: calc(80vh - 120px);
+      }
+      
+      .mobile-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 16px;
+        margin: 0 1rem;
+      }
+      
+      .mobile-empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+      }
+      
+      .mobile-empty-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 0.5rem 0;
+      }
+      
+      .mobile-empty-text {
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin: 0;
+      }
+      
+      /* Tablet Styles */
+      @media (min-width: 768px) {
+        .mobile-header {
+          padding: 2rem;
+        }
+        
+        .mobile-header h1 {
+          font-size: 2.25rem;
+        }
+        
+        .mobile-header p {
+          font-size: 1.125rem;
+        }
+        
+        .categories-grid {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+        }
+        
         .category-btn {
           min-height: 100px;
-          min-width: 100px;
-          padding: 1.25rem 0.75rem;
+          padding: 1rem;
+          font-size: 0.875rem;
         }
         
         .category-icon {
-          width: 3rem;
-          height: 3rem;
+          width: 32px !important;
+          height: 32px !important;
+          margin-bottom: 0.5rem;
+        }
+        
+        .benefits-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+        }
+        
+        .mobile-results-header {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+        
+        .mobile-results-count {
+          align-self: auto;
+        }
+      }
+      
+      /* Desktop Styles */
+      @media (min-width: 1024px) {
+        .mobile-container {
+          max-width: 1200px;
+          padding: 0 2rem;
+        }
+        
+        .mobile-header {
+          padding: 3rem 2rem;
+        }
+        
+        .mobile-header h1 {
+          font-size: 3rem;
+        }
+        
+        .mobile-header p {
+          font-size: 1.25rem;
+        }
+        
+        .categories-grid {
+          grid-template-columns: repeat(6, 1fr);
+          gap: 1.5rem;
+        }
+        
+        .category-btn {
+          min-height: 120px;
+          padding: 1.5rem;
+          font-size: 1rem;
+        }
+        
+        .category-icon {
+          width: 40px !important;
+          height: 40px !important;
           margin-bottom: 0.75rem;
         }
         
-        .clean-btn {
-          padding: 1rem 1.5rem;
-          font-size: 1rem;
-          min-height: 48px;
+        .benefits-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
         }
         
-        /* Improve touch targets on mobile */
-        button, a {
-          min-height: 44px;
+        .mobile-fab {
+          width: 64px;
+          height: 64px;
+          bottom: 2rem;
+          right: 2rem;
+          border-radius: 32px;
         }
         
-        /* Improve modal on mobile */
-        .mobile-modal {
-          margin: 1rem;
-          max-height: calc(100vh - 2rem);
+        .mobile-modal-content {
+          max-width: 600px;
         }
       }
       
@@ -145,15 +561,15 @@
       @keyframes pulse-heartbeat {
         0% {
           transform: scale(1);
-          box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
         }
         50% {
           transform: scale(1.05);
-          box-shadow: 0 0 0 10px rgba(20, 184, 166, 0);
+          box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
         }
         100% {
           transform: scale(1);
-          box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
         }
       }
     </style>
@@ -470,38 +886,26 @@
         };
 
         return React.createElement('div', {
-          className: "min-h-screen bg-slate-50 rtl"
+          className: "mobile-container min-h-screen bg-slate-50"
         }, [
           // Header
           React.createElement('header', {
-            className: "bg-white border-b-2 border-gray-200 shadow-lg mb-6 sm:mb-8",
+            className: "mobile-header",
             key: "header"
-          }, React.createElement('div', {
-            className: "max-w-7xl mx-auto px-4 py-4 sm:py-6 md:py-8"
-          }, React.createElement('div', {
-            className: "text-center"
           }, [
             React.createElement('h1', {
-              className: "text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-2 sm:mb-4 leading-tight",
               key: "title"
             }, "הקלות והטבות בעקבות מבצע עם כלביא"),
             React.createElement('p', {
-              className: "text-base sm:text-lg text-slate-600",
               key: "subtitle"
             }, "מאגר הטבות והקלות לטובת הקהילה")
-          ]))),
+          ]),
 
           // Search Section
           React.createElement('section', {
-            className: "mb-6 sm:mb-8 px-4",
+            className: "mobile-search",
             key: "search"
-          }, React.createElement('div', {
-            className: "max-w-2xl mx-auto"
           }, [
-            React.createElement('h2', {
-              className: "text-lg sm:text-xl font-semibold text-slate-800 mb-3 sm:mb-4 text-center",
-              key: "search-title"
-            }, "חיפוש"),
             React.createElement('div', {
               className: "relative",
               key: "search-input"
@@ -512,45 +916,43 @@
                 value: searchQuery,
                 onChange: (e) => handleSearchChange(e.target.value),
                 placeholder: "הקלידו כאן מה אתם מחפשים...",
-                className: "border-2 border-slate-200 focus:border-teal-600 focus:outline-none block w-full px-4 py-4 sm:py-3 rounded-lg bg-white text-slate-800 placeholder-slate-500 text-right text-base sm:text-sm",
                 dir: "rtl"
               }),
+              React.createElement('div', {
+                key: "search-icon",
+                className: "absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+              }, "🔍"),
               searchQuery && React.createElement('button', {
                 key: "clear",
                 onClick: () => handleSearchChange(''),
-                className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center"
+                className: "absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center"
               }, "✕")
             ])
-          ])),
+          ]),
 
           // Categories Section
           React.createElement('section', {
-            className: "mb-6 sm:mb-8 px-4",
+            className: "mobile-categories",
             key: "categories"
-          }, React.createElement('div', {
-            className: "max-w-7xl mx-auto"
           }, [
             React.createElement('h2', {
-              className: "text-lg sm:text-xl font-semibold text-slate-800 mb-3 sm:mb-4 text-center",
               key: "title"
             }, "קטגוריות"),
             React.createElement('div', {
-              className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4",
+              className: "categories-grid",
               key: "grid"
             }, [
               // All button
               React.createElement('button', {
                 key: "all",
                 onClick: () => handleCategoryChange(''),
-                className: `category-btn bg-white shadow-md hover:shadow-lg ${
-                  selectedCategory === ''
-                    ? 'bg-teal-600 text-white shadow-lg'
-                    : 'text-slate-700'
+                className: `category-btn ${
+                  selectedCategory === '' ? 'active' : ''
                 }`
               }, [
                 getCategoryIcon('הכל'),
                 React.createElement('span', {
-                  className: "font-semibold text-center text-xs sm:text-sm leading-tight",
+                  className: "category-text",
                   key: "text"
                 }, "הכל")
               ]),
@@ -559,40 +961,38 @@
                 React.createElement('button', {
                   key: category.name,
                   onClick: () => handleCategoryChange(category.name),
-                  className: `category-btn bg-white shadow-md hover:shadow-lg ${
-                    selectedCategory === category.name
-                      ? 'bg-teal-600 text-white shadow-lg'
-                      : 'text-slate-700'
+                  className: `category-btn ${
+                    selectedCategory === category.name ? 'active' : ''
                   }`
                 }, [
                   getCategoryIcon(category.name),
                   React.createElement('span', {
-                    className: "font-semibold text-center text-xs sm:text-sm leading-tight",
+                    className: "category-text",
                     key: "text"
                   }, category.name)
                 ])
               )
             ])
-          ])),
+          ]),
 
           // Results Section
           React.createElement('main', {
-            className: "max-w-7xl mx-auto px-4 pb-12",
+            className: "mobile-results",
             key: "main"
           }, [
             // Results Header
             React.createElement('div', {
-              className: "flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mb-6 sm:mb-8 bg-white border-2 border-slate-200 rounded-lg p-4 sm:p-6",
+              className: "mobile-results-header",
               key: "header"
             }, [
               React.createElement('h2', {
-                className: "text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 text-center sm:text-right",
+                className: "mobile-results-title",
                 key: "title"
               }, searchQuery ? `תוצאות חיפוש עבור "${searchQuery}"` :
                  selectedCategory ? `הטבות בקטגוריה "${selectedCategory}"` :
                  'כל ההטבות'),
               !loading && React.createElement('div', {
-                className: "bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold text-center sm:text-right text-sm sm:text-base",
+                className: "mobile-results-count",
                 key: "count"
               }, `${benefits.length} תוצאות`)
             ]),
@@ -614,32 +1014,32 @@
             
             // Benefits Grid
             benefits.length > 0 ? React.createElement('div', {
-              className: "grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3",
+              className: "benefits-grid",
               key: "grid"
             }, benefits.map((benefit) =>
               React.createElement('div', {
                 key: benefit.id,
-                className: "clean-card p-4 sm:p-6"
+                className: "clean-card benefit-card"
               }, [
                 React.createElement('h3', {
-                  className: "text-lg sm:text-xl font-semibold text-slate-800 mb-3 leading-tight",
+                  className: "benefit-title",
                   key: "title"
                 }, benefit.organization),
                 React.createElement('div', {
-                  className: "flex flex-wrap gap-2 mb-3",
+                  className: "benefit-tags",
                   key: "categories"
                 }, [
                   benefit.category && React.createElement('span', {
                     key: "category",
-                    className: "px-3 py-1 rounded-full text-xs sm:text-sm bg-teal-600 text-white"
+                    className: "benefit-tag"
                   }, benefit.category),
                   benefit.subcategory && React.createElement('span', {
                     key: "subcategory",
-                    className: "px-3 py-1 rounded-full text-xs sm:text-sm bg-teal-500 text-white"
+                    className: "benefit-tag"
                   }, benefit.subcategory)
                 ]),
                 React.createElement('p', {
-                  className: "text-slate-700 leading-relaxed mb-4 text-sm sm:text-base",
+                  className: "benefit-description",
                   key: "details"
                 }, benefit.detailsTruncated),
                 React.createElement('div', {
@@ -649,14 +1049,14 @@
                   benefit.hasMoreDetails && React.createElement('button', {
                     key: "readmore",
                     onClick: () => fetchBenefitDetails(benefit.id),
-                    className: "clean-btn bg-teal-600 text-white hover:bg-teal-700 w-full"
+                    className: "benefit-action"
                   }, "קרא עוד"),
                   benefit.detailsLink && React.createElement('a', {
                     key: "link",
                     href: benefit.detailsLink,
                     target: "_blank",
                     rel: "noopener noreferrer",
-                    className: "clean-btn bg-slate-800 text-white hover:bg-slate-900 w-full text-center"
+                    className: "benefit-action bg-slate-800 hover:bg-slate-900 text-center block"
                   }, "מעבר לשירות")
                 ])
               ])
@@ -664,19 +1064,19 @@
             
             // Empty State
             React.createElement('div', {
-              className: "text-center py-12 sm:py-20 bg-white border-2 border-slate-200 rounded-lg",
+              className: "mobile-empty",
               key: "empty"
             }, [
               React.createElement('div', {
-                className: "text-4xl sm:text-6xl mb-3 sm:mb-4 text-slate-300",
+                className: "mobile-empty-icon",
                 key: "icon"
               }, "🔍"),
               React.createElement('h3', {
-                className: "text-lg sm:text-xl font-semibold text-slate-800 mb-2",
+                className: "mobile-empty-title",
                 key: "title"
               }, "לא נמצאו תוצאות"),
               React.createElement('p', {
-                className: "text-slate-600 text-sm sm:text-base px-4",
+                className: "mobile-empty-text",
                 key: "subtitle"
               }, "נסו לשנות את מילות החיפוש או את הקטגוריה שנבחרה")
             ])
@@ -685,35 +1085,35 @@
           // Modal
           showModal && selectedBenefit && React.createElement('div', {
             key: "modal",
-            className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black bg-opacity-50",
+            className: "mobile-modal",
             onClick: (e) => e.target === e.currentTarget && setShowModal(false)
           }, React.createElement('div', {
-            className: "bg-white rounded-t-2xl sm:rounded-lg shadow-xl w-full sm:max-w-4xl sm:w-full max-h-[90vh] sm:max-h-[90vh] overflow-hidden border-2 border-slate-200 mobile-modal"
+            className: "mobile-modal-content"
           }, [
             React.createElement('div', {
-              className: "bg-slate-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex justify-between items-center",
+              className: "mobile-modal-header",
               key: "header"
             }, [
               React.createElement('h2', {
-                className: "text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 leading-tight",
+                className: "mobile-modal-title",
                 key: "title"
               }, selectedBenefit.organization),
               React.createElement('button', {
                 key: "close",
                 onClick: () => setShowModal(false),
-                className: "clean-btn bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-2 text-sm"
-              }, "✕ סגור")
+                className: "mobile-modal-close"
+              }, "×")
             ]),
             React.createElement('div', {
-              className: "p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-120px)] sm:max-h-[calc(90vh-180px)]",
+              className: "mobile-modal-body",
               key: "content"
             }, [
               React.createElement('h3', {
-                className: "text-base sm:text-lg font-semibold text-slate-800 mb-3",
+                className: "benefit-title mb-3",
                 key: "title"
               }, "פרטים מלאים"),
               React.createElement('div', {
-                className: "text-slate-700 leading-relaxed whitespace-pre-line text-sm sm:text-base",
+                className: "benefit-description",
                 key: "details"
               }, selectedBenefit.details)
             ])
@@ -728,9 +1128,8 @@
     <!-- Interactive Credits Section -->
     <div id="credits-container">
         <!-- Enhanced Floating Action Button (FAB) -->
-        <button id="credits-fab" class="fixed bottom-4 sm:bottom-5 right-4 sm:right-5 h-14 sm:h-16 w-auto bg-teal-600 text-white rounded-full shadow-lg flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 z-40 hover:bg-teal-700 transition-transform hover:scale-110 pulse-heartbeat min-h-[44px]">
-            <span class="text-xl sm:text-2xl">❤️</span>
-            <span class="text-xs sm:text-sm font-semibold whitespace-nowrap">יוצרים</span>
+        <button id="credits-fab" class="mobile-fab pulse-heartbeat">
+            <span>❤️</span>
         </button>
 
         <!-- Slide-up Credits Panel (hidden by default) -->
