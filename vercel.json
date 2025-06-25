@@ -2,25 +2,33 @@
   "version": 2,
   "builds": [
     {
-      "src": "benefits-backend/src/main.py",
+      "src": "api/app.py",
       "use": "@vercel/python"
     },
     {
-      "src": "benefits-website/index.html",
-      "use": "@vercel/static"
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "benefits-backend/src/main.py"
+      "dest": "api/app.py"
     },
     {
       "src": "/(.*)",
-      "dest": "benefits-website/index.html"
+      "dest": "frontend/dist/$1"
     }
   ],
   "env": {
-    "PYTHONPATH": "benefits-backend/src"
+    "PYTHONPATH": "api"
+  },
+  "functions": {
+    "api/app.py": {
+      "maxDuration": 30
+    }
   }
 }

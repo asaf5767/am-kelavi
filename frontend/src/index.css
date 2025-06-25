@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    direction: rtl;
+  }
+  
+  body {
+    direction: rtl;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F9FAFB;
+  }
+}
+
+@layer components {
+  /* Clean, minimal borders */
+  .clean-border { 
+    @apply border-2 border-gray-200; 
+  }
+  
+  .clean-border-thick { 
+    @apply border-3 border-gray-300; 
+  }
+  
+  .clean-shadow { 
+    @apply shadow-md; 
+  }
+  
+  .clean-shadow-lg { 
+    @apply shadow-xl; 
+  }
+  
+  /* Subtle hover effects */
+  .clean-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .clean-hover:hover {
+    @apply -translate-y-0.5 shadow-lg;
+  }
+  
+  /* Focus states for accessibility */
+  .clean-focus:focus {
+    @apply outline-2 outline-blue-500 outline-offset-2;
+  }
+  
+  /* Card styles */
+  .clean-card {
+    @apply bg-white border-2 border-gray-200 rounded-lg transition-all duration-200;
+  }
+  
+  .clean-card:hover {
+    @apply border-gray-300 shadow-lg;
+  }
+  
+  /* Button styles */
+  .clean-btn {
+    @apply border-2 border-transparent rounded-md px-4 py-2 font-semibold transition-all duration-200 inline-block no-underline;
+  }
+  
+  .clean-btn:hover {
+    @apply -translate-y-px;
+  }
+  
+  .clean-btn:active {
+    @apply translate-y-0;
+  }
+  
+  /* Loading animation - much calmer */
+  .calm-loading {
+    @apply animate-spin;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

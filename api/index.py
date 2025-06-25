@@ -1,13 +1,16 @@
+# Legacy entry point - redirects to new app.py structure
+# This file maintains compatibility with existing Vercel deployment
+
 import sys
 import os
 
-# Add the benefits-backend src directory to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'benefits-backend', 'src'))
+# Add the current directory to Python path
+sys.path.insert(0, os.path.dirname(__file__))
 
-# Import the Flask app from the benefits-backend
-from main import app
+# Import the new Flask app
+from app import app
 
-# Vercel requires the app to be available as a callable
+# Vercel compatibility
 def handler(request):
     return app(request)
 
