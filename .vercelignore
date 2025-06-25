@@ -1,8 +1,17 @@
 # Legacy directories that should not be deployed
-api/
 benefits-backend/
 benefits-website/
 frontend/
+
+# Development files
+server.js
+*.md
+RESTRUCTURE_PLAN.md
+IMPLEMENTATION.md
+app.py
+favicon.ico
+requirements.txt
+index.html
 
 # Node modules and build artifacts
 node_modules/
@@ -11,12 +20,3 @@ __pycache__/
 *.pyc
 .env
 .git/
-
-# Development files
-*.md
-RESTRUCTURE_PLAN.md
-IMPLEMENTATION.md
-
-# Python artifacts
-requirements.txt
-index.html
