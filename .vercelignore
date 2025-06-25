@@ -1,26 +1,28 @@
-# Legacy directories that should not be deployed
+# Old files to ignore
 benefits-backend/
 benefits-website/
 frontend/
-
-# Separate route files (now inline in api/index.js)
+server.js
+app.py
 routes/
 utils/
+public/
+
+# Old API structure
+api/index.js
 
 # Development files
-server.js
-*.md
-app.py
-favicon.ico
-requirements.txt
-index.html
-
-# Node modules and build artifacts
 node_modules/
 *.log
-__pycache__/
-*.pyc
 .env
 .git/
+README.md
+*.md
+package-lock.json
 
-# NOTE: public/ folder should NOT be ignored - it contains the React app
+# Keep only what we need
+# api/ - NOT ignored (except api/index.js)
+# lib/ - NOT ignored  
+# index.html - NOT ignored
+# package.json - NOT ignored
+# favicon.ico - NOT ignored
