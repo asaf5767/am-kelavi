@@ -880,17 +880,28 @@
         const handleCategoryChange = (category) => {
           setSelectedCategory(category === selectedCategory ? '' : category);
           
-          // Auto-scroll to results section after a short delay
+          // Auto-scroll to the first benefit card after a short delay
           setTimeout(() => {
-            const resultsSection = document.querySelector('.mobile-results');
-            if (resultsSection) {
-              resultsSection.scrollIntoView({ 
+            const firstBenefitCard = document.querySelector('.benefits-grid .benefit-card');
+            if (firstBenefitCard) {
+              // Scroll to put the first benefit card at the top of the viewport
+              firstBenefitCard.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'start',
                 inline: 'nearest'
               });
+            } else {
+              // Fallback: scroll to results header if no benefits found
+              const resultsHeader = document.querySelector('.mobile-results-header');
+              if (resultsHeader) {
+                resultsHeader.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'start',
+                  inline: 'nearest'
+                });
+              }
             }
-          }, 100);
+          }, 150);
         };
 
         const handleSearchChange = (query) => {
