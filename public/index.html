@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>הקלות והטבות בעקבות מבצע עם כלביא</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'calm-blue': '#3B82F6',
+              'calm-green': '#10B981',
+              'calm-purple': '#8B5CF6',
+              'calm-orange': '#F59E0B',
+              'calm-red': '#EF4444',
+              'calm-gray': '#6B7280'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        direction: rtl;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #F9FAFB;
+      }
+      
+      .clean-card {
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+      }
+      
+      .clean-card:hover {
+        border-color: #D1D5DB;
+        box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+      
+      .clean-btn {
+        border: 2px solid transparent;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .clean-btn:hover {
+        transform: translateY(-1px);
+      }
+      
+      .calm-loading {
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+      
+      // Main App Component
+      const App = () => {
+        const [benefits, setBenefits] = useState([]);
+        const [categories, setCategories] = useState([]);
+        const [selectedCategory, setSelectedCategory] = useState('');
+        const [searchQuery, setSearchQuery] = useState('');
+        const [loading, setLoading] = useState(true);
+        const [selectedBenefit, setSelectedBenefit] = useState(null);
+        const [showModal, setShowModal] = useState(false);
+
+        useEffect(() => {
+          fetchCategories();
+        }, []);
+
+        useEffect(() => {
+          fetchBenefits();
+        }, [selectedCategory, searchQuery]);
+
+        const fetchCategories = async () => {
+          try {
+            const response = await fetch('/api/categories');
+            const data = await response.json();
+            if (data.success) {
+              setCategories(data.categories);
+            }
+          } catch (error) {
+            console.error('Error fetching categories:', error);
+          }
+        };
+
+        const fetchBenefits = async () => {
+          setLoading(true);
+          try {
+            let url = '/api/benefits/enhanced';
+            const params = new URLSearchParams();
+            
+            if (selectedCategory) params.append('category', selectedCategory);
+            if (searchQuery) params.append('q', searchQuery);
+            
+            if (params.toString()) {
+              url = `/api/benefits/search?${params.toString()}`;
+            }
+
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+              setBenefits(data.data);
+            }
+          } catch (error) {
+            console.error('Error fetching benefits:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        const fetchBenefitDetails = async (benefitId) => {
+          try {
+            const response = await fetch(`/api/benefits/${benefitId}`);
+            const data = await response.json();
+            if (data.success) {
+              setSelectedBenefit(data.benefit);
+              setShowModal(true);
+            }
+          } catch (error) {
+            console.error('Error fetching benefit details:', error);
+          }
+        };
+
+        const handleCategoryChange = (category) => {
+          setSelectedCategory(category === selectedCategory ? '' : category);
+        };
+
+        const handleSearchChange = (query) => {
+          setSearchQuery(query);
+        };
+
+        return React.createElement('div', {
+          className: "min-h-screen bg-gray-50 rtl"
+        }, [
+          // Header
+          React.createElement('header', {
+            className: "bg-white border-b-2 border-gray-200 shadow-lg mb-8",
+            key: "header"
+          }, React.createElement('div', {
+            className: "max-w-7xl mx-auto px-4 py-8"
+          }, React.createElement('div', {
+            className: "text-center"
+          }, [
+            React.createElement('h1', {
+              className: "text-4xl font-bold text-gray-900 mb-4",
+              key: "title"
+            }, "הקלות והטבות בעקבות מבצע עם כלביא"),
+            React.createElement('p', {
+              className: "text-lg text-gray-600",
+              key: "subtitle"
+            }, "מאגר הטבות והקלות לטובת הקהילה - Node.js Full-Stack")
+          ]))),
+
+          // Search Section
+          React.createElement('section', {
+            className: "mb-8 px-4",
+            key: "search"
+          }, React.createElement('div', {
+            className: "max-w-2xl mx-auto"
+          }, [
+            React.createElement('h2', {
+              className: "text-xl font-semibold text-gray-900 mb-4 text-center",
+              key: "search-title"
+            }, "חיפוש"),
+            React.createElement('div', {
+              className: "relative",
+              key: "search-input"
+            }, [
+              React.createElement('input', {
+                key: "input",
+                type: "text",
+                value: searchQuery,
+                onChange: (e) => handleSearchChange(e.target.value),
+                placeholder: "הקלידו כאן מה אתם מחפשים...",
+                className: "border-2 border-gray-300 focus:border-calm-blue focus:outline-none block w-full px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 text-right",
+                dir: "rtl"
+              }),
+              searchQuery && React.createElement('button', {
+                key: "clear",
+                onClick: () => handleSearchChange(''),
+                className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              }, "✕")
+            ])
+          ])),
+
+          // Categories Section
+          React.createElement('section', {
+            className: "mb-8 px-4",
+            key: "categories"
+          }, React.createElement('div', {
+            className: "max-w-7xl mx-auto"
+          }, [
+            React.createElement('h2', {
+              className: "text-xl font-semibold text-gray-900 mb-4 text-center",
+              key: "title"
+            }, "קטגוריות"),
+            React.createElement('div', {
+              className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4",
+              key: "grid"
+            }, [
+              // All button
+              React.createElement('button', {
+                key: "all",
+                onClick: () => handleCategoryChange(''),
+                className: `p-4 rounded-xl flex flex-col items-center justify-center aspect-square border-2 min-h-[100px] transition-all duration-200 ${
+                  selectedCategory === ''
+                    ? 'bg-calm-blue text-white border-calm-blue'
+                    : 'bg-white text-gray-800 border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                }`
+              }, [
+                React.createElement('span', {
+                  className: "text-3xl mb-2",
+                  key: "icon"
+                }, "🌟"),
+                React.createElement('span', {
+                  className: "font-medium text-sm text-center",
+                  key: "text"
+                }, "הכל")
+              ]),
+              // Category buttons
+              ...categories.map((category) =>
+                React.createElement('button', {
+                  key: category.name,
+                  onClick: () => handleCategoryChange(category.name),
+                  className: `p-4 rounded-xl flex flex-col items-center justify-center aspect-square border-2 min-h-[100px] transition-all duration-200 ${
+                    selectedCategory === category.name
+                      ? 'bg-calm-blue text-white border-calm-blue'
+                      : 'bg-white text-gray-800 border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                  }`
+                }, [
+                  React.createElement('span', {
+                    className: "text-3xl mb-2",
+                    key: "icon"
+                  }, "📁"),
+                  React.createElement('span', {
+                    className: "font-medium text-sm text-center px-1",
+                    key: "text"
+                  }, category.name),
+                  React.createElement('span', {
+                    className: "text-xs text-gray-500 mt-1",
+                    key: "count"
+                  }, category.count)
+                ])
+              )
+            ])
+          ])),
+
+          // Results Section
+          React.createElement('main', {
+            className: "max-w-7xl mx-auto px-4 pb-12",
+            key: "main"
+          }, [
+            // Results Header
+            React.createElement('div', {
+              className: "flex justify-between items-center mb-8 bg-white border-2 border-gray-200 rounded-lg p-6",
+              key: "header"
+            }, [
+              React.createElement('h2', {
+                className: "text-2xl font-semibold text-gray-900",
+                key: "title"
+              }, searchQuery ? `תוצאות חיפוש עבור "${searchQuery}"` :
+                 selectedCategory ? `הטבות בקטגוריה "${selectedCategory}"` :
+                 'כל ההטבות'),
+              !loading && React.createElement('div', {
+                className: "bg-calm-blue text-white px-4 py-2 rounded-lg font-semibold",
+                key: "count"
+              }, `${benefits.length} תוצאות`)
+            ]),
+
+            // Loading State
+            loading ? React.createElement('div', {
+              className: "flex justify-center items-center py-20",
+              key: "loading"
+            }, [
+              React.createElement('div', {
+                className: "calm-loading rounded-full h-12 w-12 border-4 border-calm-blue border-t-transparent",
+                key: "spinner"
+              }),
+              React.createElement('span', {
+                className: "mr-4 text-lg text-gray-600",
+                key: "text"
+              }, "טוען...")
+            ]) :
+            
+            // Benefits Grid
+            benefits.length > 0 ? React.createElement('div', {
+              className: "grid gap-6 md:grid-cols-2 lg:grid-cols-3",
+              key: "grid"
+            }, benefits.map((benefit) =>
+              React.createElement('div', {
+                key: benefit.id,
+                className: "clean-card p-6"
+              }, [
+                React.createElement('h3', {
+                  className: "text-xl font-semibold text-gray-900 mb-3",
+                  key: "title"
+                }, benefit.organization),
+                React.createElement('div', {
+                  className: "flex flex-wrap gap-2 mb-3",
+                  key: "categories"
+                }, [
+                  benefit.category && React.createElement('span', {
+                    key: "category",
+                    className: "px-3 py-1 rounded-full text-sm bg-calm-blue text-white"
+                  }, benefit.category),
+                  benefit.subcategory && React.createElement('span', {
+                    key: "subcategory",
+                    className: "px-3 py-1 rounded-full text-sm bg-calm-green text-white"
+                  }, benefit.subcategory)
+                ]),
+                React.createElement('p', {
+                  className: "text-gray-700 leading-relaxed mb-4",
+                  key: "details"
+                }, benefit.detailsTruncated),
+                benefit.hasMoreDetails && React.createElement('button', {
+                  key: "readmore",
+                  onClick: () => fetchBenefitDetails(benefit.id),
+                  className: "clean-btn bg-calm-blue text-white hover:bg-blue-600"
+                }, "קרא עוד"),
+                benefit.detailsLink && React.createElement('div', {
+                  className: "pt-4 border-t border-gray-200 mt-4",
+                  key: "link"
+                }, React.createElement('a', {
+                  href: benefit.detailsLink,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  className: "clean-btn bg-gray-900 text-white hover:bg-gray-800 w-full text-center"
+                }, "מעבר לשירות"))
+              ])
+            )) :
+            
+            // Empty State
+            React.createElement('div', {
+              className: "text-center py-20 bg-white border-2 border-gray-200 rounded-lg",
+              key: "empty"
+            }, [
+              React.createElement('div', {
+                className: "text-6xl mb-4 text-gray-300",
+                key: "icon"
+              }, "🔍"),
+              React.createElement('h3', {
+                className: "text-xl font-semibold text-gray-900 mb-2",
+                key: "title"
+              }, "לא נמצאו תוצאות"),
+              React.createElement('p', {
+                className: "text-gray-600",
+                key: "subtitle"
+              }, "נסו לשנות את מילות החיפוש או את הקטגוריה שנבחרה")
+            ])
+          ]),
+
+          // Modal
+          showModal && selectedBenefit && React.createElement('div', {
+            key: "modal",
+            className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50",
+            onClick: (e) => e.target === e.currentTarget && setShowModal(false)
+          }, React.createElement('div', {
+            className: "bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden border-2 border-gray-200"
+          }, [
+            React.createElement('div', {
+              className: "bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center",
+              key: "header"
+            }, [
+              React.createElement('h2', {
+                className: "text-2xl font-semibold text-gray-900",
+                key: "title"
+              }, selectedBenefit.organization),
+              React.createElement('button', {
+                key: "close",
+                onClick: () => setShowModal(false),
+                className: "clean-btn bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }, "✕ סגור")
+            ]),
+            React.createElement('div', {
+              className: "p-6 overflow-y-auto max-h-[calc(90vh-180px)]",
+              key: "content"
+            }, [
+              React.createElement('h3', {
+                className: "text-lg font-semibold text-gray-900 mb-3",
+                key: "title"
+              }, "פרטים מלאים"),
+              React.createElement('div', {
+                className: "text-gray-700 leading-relaxed whitespace-pre-line",
+                key: "details"
+              }, selectedBenefit.details)
+            ])
+          ]))
+        ]);
+      };
+
+      // Render the app
+      ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+  </body>
+</html>

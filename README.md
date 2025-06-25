@@ -1,8 +1,8 @@
 # הקלות והטבות בעקבות מבצע עם כלביא
 
-## AM-Kelavi Benefits Platform
+## AM-Kelavi Benefits Platform - Node.js Full-Stack
 
-A comprehensive platform for discovering and accessing benefits, assistance programs, and services available to the Israeli community during wartime and beyond.
+A comprehensive Node.js/Express full-stack platform for discovering and accessing benefits, assistance programs, and services available to the Israeli community during wartime and beyond.
 
 ## 🌟 Features
 
@@ -10,29 +10,26 @@ A comprehensive platform for discovering and accessing benefits, assistance prog
 - **Smart Search**: AI-powered search with Hebrew keyword recognition
 - **Category Filtering**: Organized by relevant categories for easy navigation
 - **Mobile Responsive**: Optimized for all devices with RTL Hebrew support
-- **Static Shell Pattern**: Ensures consistent mobile layout performance
-- **Modern Stack**: React frontend with Python Flask API backend
+- **Single Server**: One Express.js application serving both API and frontend
+- **Easy Deployment**: Simple Vercel deployment with Node.js
 
 ## 🏗️ Project Structure
 
 ```
 am-kelavi-benefits/
-├── frontend/              # React frontend application
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── App.jsx       # Main application
-│   │   └── main.jsx      # Entry point
-│   ├── package.json
-│   ├── vite.config.js
-│   └── tailwind.config.js
-├── api/                   # Python Flask API
-│   ├── routes/           # API route handlers
-│   ├── models/           # Database models
-│   ├── app.py           # Main Flask application
-│   └── requirements.txt
-├── vercel.json           # Vercel deployment configuration
-├── package.json          # Root package.json
-└── README.md
+├── server.js              # Main Express server
+├── package.json           # Node.js dependencies and scripts
+├── public/                # Static files served by Express
+│   ├── index.html         # Complete React application (CDN-based)
+│   └── favicon.ico        # Icon
+├── routes/                # API route handlers
+│   ├── benefits.js        # Google Sheets integration
+│   ├── categories.js      # Category filtering
+│   └── ai.js             # AI-powered suggestions
+├── utils/                 # Helper utilities
+│   └── sheets.js         # Google Sheets CSV processing
+├── vercel.json           # Simple Vercel deployment config
+└── README.md             # This file
 ```
 
 ## 🚀 Getting Started
@@ -40,7 +37,6 @@ am-kelavi-benefits/
 ### Prerequisites
 
 - Node.js (>=18.0.0)
-- Python (>=3.8)
 - npm (>=9.0.0)
 
 ### Local Development
@@ -51,60 +47,42 @@ am-kelavi-benefits/
    cd am-kelavi-benefits
    ```
 
-2. **Install frontend dependencies**
+2. **Install dependencies**
    ```bash
-   npm run install:frontend
+   npm install
    ```
 
-3. **Install Python dependencies**
-   ```bash
-   pip install -r api/requirements.txt
-   ```
-
-4. **Start the development servers**
-
-   **Frontend (in one terminal):**
+3. **Start the development server**
    ```bash
    npm run dev
-   ```
-
-   **Backend (in another terminal):**
-   ```bash
+   # or
    npm start
    ```
 
-5. **Access the application**
-   - Frontend: http://localhost:3000
-   - API: http://localhost:5000
+4. **Access the application**
+   - Frontend & API: http://localhost:5000
 
 ## 📱 Mobile Responsiveness
 
-The application implements the **Static Shell Pattern** to ensure consistent mobile layout:
+The application maintains consistent mobile layout with:
 
-- **Static Grid Container**: Responsive grid classes are defined in HTML and never modified
-- **Dynamic Content**: JavaScript only populates the existing grid with buttons
-- **Preserved Layout**: Mobile responsiveness is maintained during data loading
-
-### Grid Breakpoints
-- Mobile: 2 columns (`grid-cols-2`)
-- Small screens: 3 columns (`sm:grid-cols-3`)
-- Medium screens: 4 columns (`md:grid-cols-4`)
-- Large screens: 6 columns (`lg:grid-cols-6`)
+- **Responsive Grid**: Category buttons adapt from 2 columns (mobile) to 6 columns (desktop)
+- **Touch-Optimized**: Large touch targets for mobile interaction
+- **RTL Support**: Proper right-to-left layout for Hebrew content
+- **Clean Design**: Minimal borders and calm color palette
 
 ## 🛠️ Technology Stack
 
-### Frontend
-- **React 18** - Modern React with hooks
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **Lucide React** - Beautiful icons
-- **RTL Support** - Right-to-left layout for Hebrew
-
 ### Backend
-- **Flask** - Lightweight Python web framework
-- **Flask-CORS** - Cross-origin resource sharing
-- **Flask-SQLAlchemy** - Database ORM
-- **Requests** - HTTP library for Google Sheets integration
+- **Express.js** - Fast, unopinionated web framework
+- **Node.js** - JavaScript runtime
+- **Axios** - HTTP client for Google Sheets integration
+- **CORS** - Cross-origin resource sharing
+
+### Frontend
+- **React 18** - Modern React via CDN (no build process)
+- **Tailwind CSS** - Utility-first CSS framework via CDN
+- **Vanilla JavaScript** - Clean, simple implementation
 
 ### Deployment
 - **Vercel** - Serverless deployment platform
@@ -145,15 +123,24 @@ The application implements the **Static Shell Pattern** to ensure consistent mob
 
 ### Vercel Deployment
 
-The application is configured for automatic deployment on Vercel:
+The application is configured for simple Vercel deployment:
 
 1. **Connect Repository**: Link your GitHub repository to Vercel
-2. **Automatic Builds**: Vercel automatically builds and deploys on push
-3. **Environment**: Production environment uses the same configuration
+2. **Automatic Deployment**: Vercel automatically detects Node.js and deploys
+3. **Simple Configuration**: Uses the minimal `vercel.json` setup
 
 ### Environment Variables
 
 No environment variables are required for basic functionality as the application uses public Google Sheets data.
+
+## 🚀 Benefits of Node.js Full-Stack Approach
+
+- ✅ **One Language**: JavaScript for both frontend and backend
+- ✅ **One Server**: Express serves both API and static files
+- ✅ **Simple Development**: `npm start` runs everything
+- ✅ **Easy Deployment**: Single Vercel build process
+- ✅ **No Build Complexity**: CDN-based React, no webpack/vite
+- ✅ **Maintained Features**: All existing functionality preserved
 
 ## 🤝 Contributing
 
@@ -168,9 +155,8 @@ No environment variables are required for basic functionality as the application
 
 ### Code Standards
 
-- **ESLint**: Frontend code linting
+- **ESLint**: Code linting for JavaScript
 - **Prettier**: Code formatting
-- **Python**: PEP 8 style guide
 - **Commits**: Conventional commit messages
 
 ## 📝 License
@@ -199,3 +185,11 @@ For content updates, contact מוֹרָן תְּסַדֵּר through the links a
 🤝 **פרויקט קהילתי למען הציבור - מידע מעודכן ונגיש לכל אזרח**
 
 *A community project for the public - updated and accessible information for every citizen*
+
+## 🔄 Migration Notes
+
+This project was migrated from a complex Python/React separation to a clean Node.js full-stack application for:
+- Easier development and maintenance
+- Simplified deployment to Vercel
+- Better performance and reliability
+- Single-language development workflow

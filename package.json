@@ -1,31 +1,40 @@
 {
   "name": "am-kelavi-benefits",
   "version": "1.0.0",
-  "description": "Benefits and assistance platform for the Israeli community",
-  "private": true,
+  "description": "Benefits and assistance platform for the Israeli community - Node.js Full-Stack",
+  "main": "server.js",
   "scripts": {
-    "dev": "npm run dev --prefix frontend",
-    "build": "cd frontend && npm install && npm run build",
-    "start": "python api/app.py",
-    "install:frontend": "npm install --prefix frontend",
-    "install:all": "npm run install:frontend",
-    "vercel-build": "cd frontend && npm install && npm run build"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step needed for static files'",
+    "vercel-build": "echo 'Ready for deployment'"
   },
   "keywords": [
     "benefits",
     "assistance",
     "israel",
     "community",
-    "hebrew"
+    "hebrew",
+    "express",
+    "node"
   ],
   "author": "Assaf Akiva",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/assafakiva/am-kelavi-benefits.git"
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.0",
+    "csv-parser": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/assafakiva/am-kelavi-benefits.git"
   }
 }
