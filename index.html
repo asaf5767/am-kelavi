@@ -966,23 +966,62 @@
                 benefit.category.toLowerCase().includes(query.toLowerCase())
               );
               
-              if (currentResults.length <= 2 && currentResults.length > 0) {
+              if (currentResults.length <= 2) {
                 // Look for similar terms
                 const commonTerms = [
                   'משרתי מילואים', 'משרת מילואים',
+                  'בעלי עסקים', 'בעל עסק', 'עסקים', 'עסק',
+                  'עצמאים', 'עצמאי', 'עצמאיות', 'עצמאית',
+                  'מעסיקים', 'מעסיק',
+                  'עובדים', 'עובד',
+                  'נשים', 'אישה', 'אשה',
+                  'הגיל השלישי', 'קשישים', 'זקנים', 'קשיש',
+                  'נפגעי פעולות איבה', 'נפגעי איבה', 'נפגע איבה',
+                  'נפגעי גוף', 'נפגע גוף', 'נפגעי נפש', 'נפגע נפש',
+                  'אנשים פרטיים', 'אדם פרטי', 'פרטי',
+                  'תקועים בחו״ל', 'תקוע בחו״ל', 'חו״ל',
+                  'נפגע בית', 'נפגע הבית', 'בית נפגע',
+                  'נפגע רכב', 'נפגע הרכב', 'רכב נפגע',
+                  'נפגע עסק', 'נפגע העסק', 'עסק נפגע',
+                  'ביטוח לאומי', 'לאומי',
+                  'רשות המיסים', 'מס הכנסה', 'מיסים',
+                  'משרד הבריאות', 'בריאות',
+                  'משרד התחבורה', 'תחבורה',
                   'הלוואות', 'הלוואה',
                   'זכויות', 'זכות',
                   'רפואי', 'רפואה',
-                  'בנקים', 'בנק'
+                  'בנקים', 'בנק',
+                  'הקלות', 'הקלה',
+                  'הטבות', 'הטבה',
+                  'פיצויים', 'פיצוי',
+                  'דיור חלופי', 'דיור',
+                  'טיפול נפשי', 'טיפול',
+                  'מוקד חירום', 'חירום',
+                  'תביעות', 'תביעה',
+                  'ילדים', 'ילד', 'ילדות',
+                  'משפחות', 'משפחה',
+                  'חירשים', 'חירש', 'כבדי שמיעה',
+                  'עולים חדשים', 'עולה חדש', 'עולים',
+                  'ימאים', 'ימאי'
                 ];
                 
                 const suggestions = commonTerms.filter(term => {
                   const similarity = calculateSimilarity(query.toLowerCase(), term.toLowerCase());
-                  return similarity > 0.6 && term !== query;
+                  // Also check if one term contains the other (for plural/singular cases)
+                  const isContained = term.toLowerCase().includes(query.toLowerCase()) || 
+                                    query.toLowerCase().includes(term.toLowerCase());
+                  return (similarity > 0.5 || isContained) && term !== query && 
+                         term.toLowerCase() !== query.toLowerCase();
                 });
                 
                 if (suggestions.length > 0) {
-                  setSearchSuggestion(suggestions[0]);
+                  // Sort suggestions by similarity score and choose the best one
+                  const sortedSuggestions = suggestions.map(term => ({
+                    term,
+                    similarity: calculateSimilarity(query.toLowerCase(), term.toLowerCase())
+                  })).sort((a, b) => b.similarity - a.similarity);
+                  
+                  setSearchSuggestion(sortedSuggestions[0].term);
                 } else {
                   setSearchSuggestion('');
                 }
