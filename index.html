@@ -192,16 +192,16 @@
         margin-bottom: 1rem;
       }
       
-      .mobile-search input {
-        width: 100%;
-        height: 56px;
-        padding: 0 1rem 0 3rem;
-        border: 2px solid #E5E7EB;
-        border-radius: 16px;
-        font-size: 16px;
-        background: #FAFAFA;
-        transition: all 0.3s ease;
-      }
+             .mobile-search input {
+         width: 100%;
+         height: 56px;
+         padding: 0 3.5rem 0 3.5rem;
+         border: 2px solid #E5E7EB;
+         border-radius: 16px;
+         font-size: 16px;
+         background: #FAFAFA;
+         transition: all 0.3s ease;
+       }
       
       .mobile-search input:focus {
         outline: none;
@@ -222,25 +222,28 @@
         text-align: center;
       }
       
-      .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-      }
+             .categories-grid {
+         display: grid;
+         grid-template-columns: repeat(2, 1fr);
+         gap: 0.5rem;
+       }
       
-      .category-btn {
-        min-height: 80px;
-        aspect-ratio: 1;
-        padding: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-      
-      .category-icon {
-        width: 24px !important;
-        height: 24px !important;
-        margin-bottom: 0.25rem;
-      }
+             .category-btn {
+         min-height: 60px;
+         aspect-ratio: auto;
+         padding: 0.75rem 0.5rem;
+         font-size: 0.75rem;
+         font-weight: 600;
+         flex-direction: row;
+         gap: 0.5rem;
+       }
+       
+       .category-icon {
+         width: 20px !important;
+         height: 20px !important;
+         margin-bottom: 0;
+         flex-shrink: 0;
+       }
       
       .mobile-results {
         padding: 0 1rem;
@@ -452,36 +455,36 @@
         margin: 0;
       }
       
-      /* Tablet Styles */
-      @media (min-width: 768px) {
-        .mobile-header {
-          padding: 2rem;
-        }
-        
-        .mobile-header h1 {
-          font-size: 2.25rem;
-        }
-        
-        .mobile-header p {
-          font-size: 1.125rem;
-        }
-        
-        .categories-grid {
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
-        }
-        
-        .category-btn {
-          min-height: 100px;
-          padding: 1rem;
-          font-size: 0.875rem;
-        }
-        
-        .category-icon {
-          width: 32px !important;
-          height: 32px !important;
-          margin-bottom: 0.5rem;
-        }
+             /* Tablet Styles */
+       @media (min-width: 768px) {
+         .mobile-header {
+           padding: 2rem;
+         }
+         
+         .mobile-header h1 {
+           font-size: 2.25rem;
+         }
+         
+         .mobile-header p {
+           font-size: 1.125rem;
+         }
+         
+         .categories-grid {
+           grid-template-columns: repeat(3, 1fr);
+           gap: 1rem;
+         }
+         
+         .category-btn {
+           min-height: 70px;
+           padding: 1rem;
+           font-size: 0.875rem;
+         }
+         
+         .category-icon {
+           width: 24px !important;
+           height: 24px !important;
+           margin-bottom: 0;
+         }
         
         .benefits-grid {
           grid-template-columns: repeat(2, 1fr);
@@ -518,22 +521,22 @@
           font-size: 1.25rem;
         }
         
-        .categories-grid {
-          grid-template-columns: repeat(6, 1fr);
-          gap: 1.5rem;
-        }
-        
-        .category-btn {
-          min-height: 120px;
-          padding: 1.5rem;
-          font-size: 1rem;
-        }
-        
-        .category-icon {
-          width: 40px !important;
-          height: 40px !important;
-          margin-bottom: 0.75rem;
-        }
+                 .categories-grid {
+           grid-template-columns: repeat(4, 1fr);
+           gap: 1.5rem;
+         }
+         
+         .category-btn {
+           min-height: 80px;
+           padding: 1.5rem;
+           font-size: 1rem;
+         }
+         
+         .category-icon {
+           width: 28px !important;
+           height: 28px !important;
+           margin-bottom: 0;
+         }
         
         .benefits-grid {
           grid-template-columns: repeat(3, 1fr);
@@ -710,6 +713,19 @@
              React.createElement('circle', { cx: "6", cy: "5", r: "3" }));
         }
         
+        if (name.includes('מילואים') || name.includes('משרת')) {
+          return React.createElement('svg', {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "24", height: "24", viewBox: "0 0 24 24",
+            fill: "none", stroke: "currentColor", strokeWidth: "2",
+            strokeLinecap: "round", strokeLinejoin: "round",
+            className: "category-icon text-teal-600"
+          }, React.createElement('path', { d: "M12 2L2 7l10 5 10-5-10-5z" }),
+             React.createElement('path', { d: "m2 17 10 5 10-5" }),
+             React.createElement('path', { d: "m2 12 10 5 10-5" }),
+             React.createElement('circle', { cx: "12", cy: "12", r: "2" }));
+        }
+        
         if (name.includes('חינמי')) {
           return React.createElement('svg', {
             xmlns: "http://www.w3.org/2000/svg",
@@ -793,7 +809,7 @@
              React.createElement('path', { d: "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" }),
              React.createElement('path', { d: "M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" }),
              React.createElement('path', { d: "M2 7h20" }),
-             React.createElement('path', { d: "M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" }));
+             React.createElement('path', { d: "M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2 2 0 0 1-2-2V7" }));
         }
         
         // Default icon for unknown categories
@@ -814,6 +830,8 @@
         const [categories, setCategories] = useState([]);
         const [selectedCategory, setSelectedCategory] = useState('');
         const [searchQuery, setSearchQuery] = useState('');
+        const [showInfo, setShowInfo] = useState(false);
+        const [searchSuggestion, setSearchSuggestion] = useState('');
         const [loading, setLoading] = useState(true);
         const [selectedBenefit, setSelectedBenefit] = useState(null);
         const [showModal, setShowModal] = useState(false);
@@ -904,8 +922,77 @@
           }, 150);
         };
 
+        // Fuzzy search function
+        const calculateSimilarity = (str1, str2) => {
+          const longer = str1.length > str2.length ? str1 : str2;
+          const shorter = str1.length > str2.length ? str2 : str1;
+          const editDistance = levenshteinDistance(longer, shorter);
+          return (longer.length - editDistance) / longer.length;
+        };
+        
+        const levenshteinDistance = (str1, str2) => {
+          const matrix = [];
+          for (let i = 0; i <= str2.length; i++) {
+            matrix[i] = [i];
+          }
+          for (let j = 0; j <= str1.length; j++) {
+            matrix[0][j] = j;
+          }
+          for (let i = 1; i <= str2.length; i++) {
+            for (let j = 1; j <= str1.length; j++) {
+              if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+              } else {
+                matrix[i][j] = Math.min(
+                  matrix[i - 1][j - 1] + 1,
+                  matrix[i][j - 1] + 1,
+                  matrix[i - 1][j] + 1
+                );
+              }
+            }
+          }
+          return matrix[str2.length][str1.length];
+        };
+
         const handleSearchChange = (query) => {
           setSearchQuery(query);
+          
+          // Check for smart suggestions if search results are low
+          if (query.length > 2) {
+            setTimeout(() => {
+              const currentResults = benefits.filter(benefit => 
+                benefit.organization.toLowerCase().includes(query.toLowerCase()) ||
+                benefit.details.toLowerCase().includes(query.toLowerCase()) ||
+                benefit.category.toLowerCase().includes(query.toLowerCase())
+              );
+              
+              if (currentResults.length <= 2 && currentResults.length > 0) {
+                // Look for similar terms
+                const commonTerms = [
+                  'משרתי מילואים', 'משרת מילואים',
+                  'הלוואות', 'הלוואה',
+                  'זכויות', 'זכות',
+                  'רפואי', 'רפואה',
+                  'בנקים', 'בנק'
+                ];
+                
+                const suggestions = commonTerms.filter(term => {
+                  const similarity = calculateSimilarity(query.toLowerCase(), term.toLowerCase());
+                  return similarity > 0.6 && term !== query;
+                });
+                
+                if (suggestions.length > 0) {
+                  setSearchSuggestion(suggestions[0]);
+                } else {
+                  setSearchSuggestion('');
+                }
+              } else {
+                setSearchSuggestion('');
+              }
+            }, 300);
+          } else {
+            setSearchSuggestion('');
+          }
         };
 
         return React.createElement('div', {
@@ -921,7 +1008,39 @@
             }, "הקלות והטבות בעקבות מבצע עם כלביא"),
             React.createElement('p', {
               key: "subtitle"
-            }, "מאגר הטבות והקלות לטובת הקהילה")
+            }, "מאגר הטבות והקלות לטובת הקהילה"),
+            React.createElement('div', {
+              key: "last-updated",
+              className: "text-center mt-2 text-sm text-gray-600"
+            }, "עודכן לאחרונה: 25/6 בשעה 01:00"),
+            React.createElement('div', {
+              key: "info-section",
+              className: "mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm"
+            }, [
+              React.createElement('div', {
+                key: "info-header",
+                className: "flex items-center justify-between cursor-pointer",
+                onClick: () => setShowInfo(!showInfo)
+              }, [
+                React.createElement('span', {
+                  key: "info-text",
+                  className: "font-medium text-blue-800"
+                }, "ℹ️ מידע חשוב לגולש"),
+                React.createElement('span', {
+                  key: "info-toggle",
+                  className: "text-blue-600"
+                }, showInfo ? "▲" : "▼")
+              ]),
+              showInfo && React.createElement('div', {
+                key: "info-content",
+                className: "mt-3 text-blue-700 space-y-2"
+              }, [
+                React.createElement('p', {key: "p1"}, "• חפשו לפי קטגוריה או הקלידו מילות חיפוש"),
+                React.createElement('p', {key: "p2"}, "• המידע מתעדכן באופן שוטף"),
+                React.createElement('p', {key: "p3"}, "• לשאלות וצור קשר: מורן תסדר"),
+                React.createElement('p', {key: "disclaimer", className: "font-medium"}, "⚠️ המידע כאן אינו מהווה ייעוץ משפטי או פיננסי")
+              ])
+            ])
           ]),
 
           // Search Section
@@ -943,13 +1062,29 @@
               }),
               React.createElement('div', {
                 key: "search-icon",
-                className: "absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className: "absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl pointer-events-none"
               }, "🔍"),
               searchQuery && React.createElement('button', {
                 key: "clear",
                 onClick: () => handleSearchChange(''),
                 className: "absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center"
               }, "✕")
+            ]),
+            searchSuggestion && React.createElement('div', {
+              key: "suggestion",
+              className: "mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+            }, [
+              React.createElement('p', {
+                key: "suggestion-text",
+                className: "text-sm text-yellow-800"
+              }, [
+                "💡 האם התכוונת ל: ",
+                React.createElement('button', {
+                  key: "suggestion-link",
+                  onClick: () => handleSearchChange(searchSuggestion),
+                  className: "font-medium text-yellow-900 underline hover:text-yellow-700"
+                }, `"${searchSuggestion}"`)
+              ])
             ])
           ]),
 
