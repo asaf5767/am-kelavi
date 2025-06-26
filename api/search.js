@@ -24,8 +24,22 @@ module.exports = async (req, res) => {
         }
       }
       
-      if (category && category !== benefit.category) {
-        matches = false;
+      if (category) {
+        // Handle the unified damage category
+        if (category === 'נפגעי רכוש 🏠🚗💼') {
+          const targetGroup = benefit.targetGroup ? benefit.targetGroup.toLowerCase() : '';
+          if (!targetGroup.includes('נפגע בית') && !targetGroup.includes('נפגע רכב') && !targetGroup.includes('נפגע עסק')) {
+            matches = false;
+          }
+        } 
+        // Handle renamed category
+        else if (category === 'עצמאים/עצמאיות' && benefit.category !== 'זכויות והטבות לעצמאים') {
+          matches = false;
+        }
+        // Standard category matching
+        else if (category !== 'עצמאים/עצמאיות' && category !== benefit.category) {
+          matches = false;
+        }
       }
       
       return matches;

@@ -798,6 +798,19 @@
              React.createElement('path', { d: "M12 17h.01" }));
         }
         
+        if (name.includes('נפגעי רכוש')) {
+          return React.createElement('svg', {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "24", height: "24", viewBox: "0 0 24 24",
+            fill: "none", stroke: "currentColor", strokeWidth: "2",
+            strokeLinecap: "round", strokeLinejoin: "round",
+            className: "category-icon text-teal-600"
+          }, React.createElement('path', { d: "M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z" }),
+             React.createElement('path', { d: "M7 15V9a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6" }),
+             React.createElement('circle', { cx: "17", cy: "18", r: "2" }),
+             React.createElement('circle', { cx: "7", cy: "18", r: "2" }));
+        }
+        
         if (name.includes('עסק') || name.includes('עצמא')) {
           return React.createElement('svg', {
             xmlns: "http://www.w3.org/2000/svg",
@@ -954,6 +967,42 @@
           return matrix[str2.length][str1.length];
         };
 
+        const exportResults = () => {
+          const exportData = benefits.map(benefit => ({
+            'ארגון': benefit.organization,
+            'קטגוריה': benefit.category,
+            'תת-קטגוריה': benefit.subcategory || '',
+            'פרטים': benefit.details,
+            'קישור': benefit.detailsLink || '',
+            'תאריך עדכון': benefit.lastUpdated || ''
+          }));
+          
+          // Convert to CSV
+          const headers = Object.keys(exportData[0]);
+          const csvContent = [
+            headers.join(','),
+            ...exportData.map(row => 
+              headers.map(header => {
+                const value = row[header] || '';
+                // Escape quotes and wrap in quotes if contains comma
+                return value.includes(',') || value.includes('"') ? 
+                  `"${value.replace(/"/g, '""')}"` : value;
+              }).join(',')
+            )
+          ].join('\\n');
+          
+          // Create download
+          const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', `הטבות_${searchQuery || selectedCategory || 'כל_ההטבות'}_${new Date().toLocaleDateString('he-IL')}.csv`);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+
         const handleSearchChange = (query) => {
           setSearchQuery(query);
           
@@ -969,7 +1018,8 @@
               if (currentResults.length <= 2) {
                 // Look for similar terms
                 const commonTerms = [
-                  'משרתי מילואים', 'משרת מילואים',
+                  // Target populations
+                  'משרתי מילואים', 'משרת מילואים', 'מילואים',
                   'בעלי עסקים', 'בעל עסק', 'עסקים', 'עסק',
                   'עצמאים', 'עצמאי', 'עצמאיות', 'עצמאית',
                   'מעסיקים', 'מעסיק',
@@ -978,27 +1028,58 @@
                   'ילדים', 'ילד', 'ילדות', 'ילדה',
                   'בני נוער', 'בן נוער', 'בת נוער', 'נוער', 'צעירים',
                   'הגיל השלישי', 'קשישים', 'זקנים', 'קשיש', 'זקן',
+                  
+                  // Injured/affected populations
                   'נפגעי פעולות איבה', 'נפגעי איבה', 'נפגע איבה',
                   'נפגעי גוף', 'נפגע גוף', 'נפגעי נפש', 'נפגע נפש', 'פצועים',
+                  'נפגעי רכוש', 'נפגע רכוש', 'נזק רכוש',
                   'אנשים פרטיים', 'אדם פרטי', 'פרטי', 'פרטיים',
                   'תקועים בחו״ל', 'תקוע בחו״ל', 'חו״ל',
                   'מפונים', 'מפונה', 'פינוי', 'מחוסרי קורת גג',
-                  'נפגע בית', 'נפגע הבית', 'בית נפגע',
-                  'נפגע רכב', 'נפגע הרכב', 'רכב נפגע',
-                  'נפגע עסק', 'נפגע העסק', 'עסק נפגע',
+                  
+                  // Property damage - unified category
+                  'נפגע בית', 'נפגע הבית', 'בית נפגע', 'נזק בית', 'בית נזק', 'נפגעי בתים',
+                  'נפגע רכב', 'נפגע הרכב', 'רכב נפגע', 'נזק רכב', 'רכב נזק', 'נפגעי רכבים',
+                  'נפגע עסק', 'נפגע העסק', 'עסק נפגע', 'נזק עסק', 'עסק נזק', 'נפגעי עסקים',
+                  'נפגעי רכוש', 'נפגע רכוש', 'נזקי רכוש', 'נזק רכוש', 'נזקים',
+                  
+                  // Special needs
                   'ילדים מיוחדים', 'ילד מיוחד', 'ילדה מיוחדת',
                   'אנשים עם מוגבלויות', 'אדם עם מוגבלות', 'מוגבלות',
-                  'ביטוח לאומי', 'לאומי',
-                  'רשות המיסים', 'מס הכנסה', 'מיסים', 'קרן הפיצויים',
-                  'משרד הבריאות', 'בריאות',
-                  'משרד התחבורה', 'תחבורה',
+                  'חירשים', 'חירש', 'כבדי שמיעה',
+                  'עולים חדשים', 'עולה חדש', 'עולים',
+                  'ימאים', 'ימאי',
+                  
+                  // Government institutions & authorities
+                  'ביטוח לאומי', 'לאומי', 'הביטוח הלאומי',
+                  'רשות המיסים', 'רשות מס', 'מס הכנסה', 'מיסים', 'המיסים', 'מס רכוש',
+                  'קרן הפיצויים', 'קרן פיצויים', 'פיצויים',
+                  'משרד הבריאות', 'משרד בריאות', 'בריאות', 'הבריאות',
+                  'משרד התחבורה', 'משרד תחבורה', 'תחבורה', 'התחבורה',
+                  'משרד הכלכלה', 'משרד כלכלה', 'כלכלה', 'הכלכלה',
+                  'משרד הביטחון', 'משרד ביטחון', 'ביטחון', 'הביטחון',
+                  'משרד החינוך', 'משרד חינוך', 'חינוך', 'החינוך',
+                  'משרד המשפטים', 'משרד משפטים', 'משפטים', 'המשפטים',
+                  'משרד הפנים', 'משרד פנים', 'פנים', 'הפנים',
+                  'משרד האוצר', 'משרד אוצר', 'אוצר', 'האוצר',
+                  'משרד החקלאות', 'משרד חקלאות', 'חקלאות', 'החקלאות',
+                  'משרד הרווחה', 'משרד רווחה', 'רווחה', 'הרווחה',
+                  'משרד הקליטה', 'משרד קליטה', 'קליטה', 'הקליטה',
+                  
+                  // Health services
                   'כללית', 'מכבי', 'מאוחדת', 'לאומית',
                   'רופאים', 'רופא', 'רופאי ילדים', 'רופא משפחה', 'רופאי משפחה',
+                  'בתי חולים', 'בית חולים', 'חולים',
+                  
+                  // Geographic areas
                   'דרום', 'צפון', 'מרכז', 'ירושלים', 'תל אביב', 'חיפה',
                   'אזור', 'איזור', 'מחוז', 'אזורי', 'מקומי', 'ארצי',
+                  'רשויות מקומיות', 'רשות מקומית', 'רשויות', 'רשות',
+                  
+                  // Services & benefits
                   'הלוואות', 'הלוואה',
                   'זכויות', 'זכות',
-                  'רפואי', 'רפואה', 'חולים', 'בתי חולים',
+                  'רפואי', 'רפואה',
                   'בנקים', 'בנק',
                   'הקלות', 'הקלה',
                   'הטבות', 'הטבה',
@@ -1008,11 +1089,10 @@
                   'מוקד חירום', 'חירום', 'מוקדי חירום',
                   'תביעות', 'תביעה',
                   'מרכזי חוסן', 'מרכז חוסן', 'חוסן',
-                  'משפחות', 'משפחה',
-                  'חירשים', 'חירש', 'כבדי שמיעה',
-                  'עולים חדשים', 'עולה חדש', 'עולים',
-                  'ימאים', 'ימאי',
                   'סיוע', 'עזרה', 'תמיכה', 'מענק', 'מענקים',
+                  
+                  // Family & relationships
+                  'משפחות', 'משפחה',
                   'הורים', 'הורה', 'אמא', 'אבא', 'אמהות', 'אבות'
                 ];
                 
@@ -1087,7 +1167,39 @@
               }, [
                 React.createElement('p', {key: "p1"}, "• חפשו לפי קטגוריה או הקלידו מילות חיפוש"),
                 React.createElement('p', {key: "p2"}, "• המידע מתעדכן באופן שוטף"),
-                React.createElement('p', {key: "p3"}, "• לשאלות וצור קשר: מורן תסדר"),
+                React.createElement('div', {key: "contact", className: "flex flex-col gap-2"}, [
+                  React.createElement('p', {key: "contact-text"}, "• יצירת קשר: מוֹרָן תְּסַדֵּר"),
+                  React.createElement('div', {key: "contact-icons", className: "flex gap-3 justify-center"}, [
+                    React.createElement('a', {
+                      key: "whatsapp",
+                      href: "https://wa.me/972XXXXXXXXX",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "flex items-center gap-1 text-green-600 hover:text-green-700 text-sm"
+                    }, [
+                      React.createElement('span', {key: "whatsapp-icon"}, "📱"),
+                      React.createElement('span', {key: "whatsapp-text"}, "WhatsApp")
+                    ]),
+                    React.createElement('a', {
+                      key: "email",
+                      href: "mailto:moran@example.com",
+                      className: "flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm"
+                    }, [
+                      React.createElement('span', {key: "email-icon"}, "📧"),
+                      React.createElement('span', {key: "email-text"}, "Email")
+                    ]),
+                    React.createElement('a', {
+                      key: "linkedin",
+                      href: "https://www.linkedin.com/in/moran-abraham-1ab9ab5b/",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "flex items-center gap-1 text-blue-800 hover:text-blue-900 text-sm"
+                    }, [
+                      React.createElement('span', {key: "linkedin-icon"}, "💼"),
+                      React.createElement('span', {key: "linkedin-text"}, "LinkedIn")
+                    ])
+                  ])
+                ]),
                 React.createElement('p', {key: "disclaimer", className: "font-medium"}, "⚠️ המידע כאן אינו מהווה ייעוץ משפטי או פיננסי")
               ])
             ])
@@ -1193,12 +1305,25 @@
               className: "mobile-results-header",
               key: "header"
             }, [
-              React.createElement('h2', {
-                className: "mobile-results-title",
-                key: "title"
-              }, searchQuery ? `תוצאות חיפוש עבור "${searchQuery}"` :
-                 selectedCategory ? `הטבות בקטגוריה "${selectedCategory}"` :
-                 'כל ההטבות'),
+              React.createElement('div', {
+                className: "flex justify-between items-start",
+                key: "header-content"
+              }, [
+                React.createElement('h2', {
+                  className: "mobile-results-title",
+                  key: "title"
+                }, searchQuery ? `תוצאות חיפוש עבור "${searchQuery}"` :
+                   selectedCategory ? `הטבות בקטגוריה "${selectedCategory}"` :
+                   'כל ההטבות'),
+                !loading && benefits.length > 0 && React.createElement('button', {
+                  key: "export",
+                  onClick: () => exportResults(),
+                  className: "flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium"
+                }, [
+                  React.createElement('span', {key: "export-icon"}, "📊"),
+                  React.createElement('span', {key: "export-text"}, "ייצוא")
+                ])
+              ]),
               !loading && React.createElement('div', {
                 className: "mobile-results-count",
                 key: "count"
