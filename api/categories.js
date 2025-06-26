@@ -15,19 +15,18 @@ module.exports = async (req, res) => {
     let damageCount = 0;
     
     for (const benefit of benefits) {
-      const category = benefit.category ? benefit.category.trim() : '';
+      let category = benefit.category ? benefit.category.trim() : '';
       if (category) {
         // Rename category as requested
         if (category === 'זכויות והטבות לעצמאים') {
-          categoryCount['עצמאים/עצמאיות'] = (categoryCount['עצמאים/עצמאיות'] || 0) + 1;
-        } else {
-          categoryCount[category] = (categoryCount[category] || 0) + 1;
+          category = 'עצמאים/עצמאיות';
         }
+        categoryCount[category] = (categoryCount[category] || 0) + 1;
       }
       
       // Count benefits that relate to property damage
-      const targetGroup = benefit.targetGroup ? benefit.targetGroup.toLowerCase() : '';
-      if (targetGroup.includes('נפגע בית') || targetGroup.includes('נפגע רכב') || targetGroup.includes('נפגע עסק')) {
+      const targetAudience = benefit.targetAudience ? benefit.targetAudience.toLowerCase() : '';
+      if (targetAudience.includes('נפגע בית') || targetAudience.includes('נפגע רכב') || targetAudience.includes('נפגע עסק')) {
         damageCount++;
       }
     }
