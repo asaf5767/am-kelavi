@@ -1,5 +1,78 @@
 const { fetchBenefitsData, enhanceBenefitsForDisplay } = require('../lib/sheets');
 
+// Shared audience matching logic
+const AUDIENCE_MATCHERS = {
+  'משרתי מילואים': (targetAudience) => 
+    ['משרתי מילואים', 'משרת מילואים', 'מילואים'].some(keyword => 
+      targetAudience.includes(keyword)
+    ),
+  'עצמאים/ות': (targetAudience) => 
+    ['עצמאים/ות', 'עצמאיות', 'עצמאי'].some(keyword => 
+      targetAudience.includes(keyword)
+    ),
+  'בעלי עסקים': (targetAudience) => 
+    ['מעסיקים', 'בעלי עסקים', 'בעל עסק'].some(keyword => 
+      targetAudience.includes(keyword)
+    ),
+  'נפגעי פעולות איבה': (targetAudience) => 
+    ['נפגעי פעולות איבה', 'נפגעי איבה'].some(keyword => 
+      targetAudience.includes(keyword)
+    ),
+  'נפגעי גוף/נפש': (targetAudience) => 
+    ['נפגעי גוף / נפש', 'נפגעי גוף', 'נפגעי נפש'].some(keyword => 
+      targetAudience.includes(keyword)
+    ),
+  'תקועים בחו"ל': (targetAudience) => 
+    ['תקועים בחו', '"תקועים בחו'].some(keyword => 
+      targetAudience.includes(keyword)
+    ),
+  'נפגעי רכוש': (targetAudience) => 
+    ['נפגע בית', 'נפגע רכב', 'נפגע עסק', 'נפגעי רכוש'].some(keyword => 
+      targetAudience.includes(keyword)
+    )
+};
+
+function matchesCategory(benefit, category) {
+  if (!category) return true;
+  
+  // Handle the unified damage category
+  if (category === 'נפגעי רכוש 🏠🚗💼') {
+    const targetAudience = benefit.targetAudience ? benefit.targetAudience.toLowerCase() : '';
+    return ['נפגע בית', 'נפגע רכב', 'נפגע עסק'].some(keyword => 
+      targetAudience.includes(keyword)
+    );
+  }
+  
+  // Handle renamed category
+  if (category === 'עצמאים/עצמאיות') {
+    return ['זכויות והטבות לעצמאים', 'עצמאים/עצמאיות'].includes(benefit.category);
+  }
+  
+  // Standard category matching
+  return benefit.category === category;
+}
+
+function matchesAudience(benefit, audience) {
+  if (!audience) return true;
+  
+  const targetAudience = benefit.targetAudience ? benefit.targetAudience.toLowerCase() : '';
+  
+  // Use predefined matchers for common audiences
+  if (AUDIENCE_MATCHERS[audience]) {
+    return AUDIENCE_MATCHERS[audience](targetAudience);
+  }
+  
+  // Generic audience matching for other cases
+  return targetAudience.includes(audience.toLowerCase());
+}
+
+function matchesSearchQuery(benefit, searchQuery) {
+  if (!searchQuery) return true;
+  
+  const searchableText = `${benefit.organization} ${benefit.details} ${benefit.category} ${benefit.targetAudience}`.toLowerCase();
+  return searchableText.includes(searchQuery.toLowerCase());
+}
+
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,94 +85,35 @@ module.exports = async (req, res) => {
   try {
     const { q: searchQuery = '', category = '', audience = '' } = req.query;
     const benefits = await fetchBenefitsData();
+    
+    if (!Array.isArray(benefits)) {
+      throw new Error('Invalid benefits data received');
+    }
+    
     const enhancedBenefits = enhanceBenefitsForDisplay(benefits);
     
     const filteredBenefits = enhancedBenefits.filter(benefit => {
-      let matches = true;
-      
-      // Text search filtering
-      if (searchQuery) {
-        const searchableText = `${benefit.organization} ${benefit.details} ${benefit.category} ${benefit.targetAudience}`.toLowerCase();
-        if (!searchableText.includes(searchQuery.toLowerCase())) {
-          matches = false;
-        }
-      }
-      
-      // Category filtering
-      if (category) {
-        // Handle the unified damage category
-        if (category === 'נפגעי רכוש 🏠🚗💼') {
-          const targetAudience = benefit.targetAudience ? benefit.targetAudience.toLowerCase() : '';
-          if (!targetAudience.includes('נפגע בית') && !targetAudience.includes('נפגע רכב') && !targetAudience.includes('נפגע עסק')) {
-            matches = false;
-          }
-        } 
-        // Handle renamed category
-        else if (category === 'עצמאים/עצמאיות') {
-          if (benefit.category !== 'זכויות והטבות לעצמאים' && benefit.category !== 'עצמאים/עצמאיות') {
-            matches = false;
-          }
-        }
-        // Standard category matching
-        else if (category !== benefit.category) {
-          matches = false;
-        }
-      }
-      
-      // Target audience filtering
-      if (audience) {
-        const targetAudience = benefit.targetAudience ? benefit.targetAudience.toLowerCase() : '';
-        
-        // Handle special cases for target audience matching
-        if (audience === 'משרתי מילואים') {
-          if (!targetAudience.includes('משרתי מילואים') && !targetAudience.includes('משרת מילואים') && !targetAudience.includes('מילואים')) {
-            matches = false;
-          }
-        } else if (audience === 'עצמאים/ות') {
-          if (!targetAudience.includes('עצמאים/ות') && !targetAudience.includes('עצמאיות') && !targetAudience.includes('עצמאי')) {
-            matches = false;
-          }
-        } else if (audience === 'בעלי עסקים') {
-          if (!targetAudience.includes('מעסיקים') && !targetAudience.includes('בעלי עסקים') && !targetAudience.includes('בעל עסק')) {
-            matches = false;
-          }
-        } else if (audience === 'נפגעי פעולות איבה') {
-          if (!targetAudience.includes('נפגעי פעולות איבה') && !targetAudience.includes('נפגעי איבה')) {
-            matches = false;
-          }
-        } else if (audience === 'נפגעי גוף/נפש') {
-          if (!targetAudience.includes('נפגעי גוף / נפש') && !targetAudience.includes('נפגעי גוף') && !targetAudience.includes('נפגעי נפש')) {
-            matches = false;
-          }
-        } else if (audience === 'תקועים בחו"ל') {
-          if (!targetAudience.includes('תקועים בחו') && !targetAudience.includes('"תקועים בחו')) {
-            matches = false;
-          }
-        } else if (audience === 'נפגעי רכוש') {
-          if (!targetAudience.includes('נפגע בית') && !targetAudience.includes('נפגע רכב') && !targetAudience.includes('נפגע עסק') && !targetAudience.includes('נפגעי רכוש')) {
-            matches = false;
-          }
-        } else {
-          // Generic audience matching
-          if (!targetAudience.includes(audience.toLowerCase())) {
-            matches = false;
-          }
-        }
-      }
-      
-      return matches;
+      return matchesSearchQuery(benefit, searchQuery) &&
+             matchesCategory(benefit, category) &&
+             matchesAudience(benefit, audience);
     });
     
     res.status(200).json({ 
       success: true, 
       data: filteredBenefits, 
-      count: filteredBenefits.length 
+      count: filteredBenefits.length,
+      filters: {
+        searchQuery: searchQuery || null,
+        category: category || null,
+        audience: audience || null
+      }
     });
   } catch (error) {
     console.error('Error in search endpoint:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to search benefits' 
+      error: 'Failed to search benefits',
+      message: error.message
     });
   }
 };

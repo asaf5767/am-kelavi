@@ -1,5 +1,44 @@
 const { fetchBenefitsData } = require('../lib/sheets');
 
+// Constants for better maintainability
+const MIN_BENEFIT_COUNT = 3;
+const MAX_SPECIFIC_AUDIENCES = 15;
+
+// Common audience mappings for better organization
+const AUDIENCE_MAPPINGS = {
+  'משרתי מילואים': ['משרתי מילואים', 'משרת מילואים', 'מילואים'],
+  'עצמאים/ות': ['עצמאים/ות', 'עצמאיות', 'עצמאי'],
+  'בעלי עסקים': ['מעסיקים', 'בעלי עסקים', 'בעל עסק'],
+  'נפגעי פעולות איבה': ['נפגעי פעולות איבה', 'נפגעי איבה'],
+  'נפגעי גוף/נפש': ['נפגעי גוף / נפש', 'נפגעי גוף', 'נפגעי נפש'],
+  'תקועים בחו"ל': ['תקועים בחו', '"תקועים בחו'],
+  'נפגעי רכוש': ['נפגע בית', 'נפגע רכב', 'נפגע עסק', 'נפגעי רכוש']
+};
+
+function cleanAudienceName(audience) {
+  if (!audience || typeof audience !== 'string') {
+    return '';
+  }
+  return audience.replace(/^["']|["']$/g, '').trim();
+}
+
+function parseAudiences(targetAudience) {
+  if (!targetAudience || typeof targetAudience !== 'string') {
+    return [];
+  }
+  
+  return targetAudience
+    .split(',')
+    .map(audience => cleanAudienceName(audience))
+    .filter(audience => audience.length > 0);
+}
+
+function calculateConsolidatedCount(audienceList, keywords) {
+  return audienceList
+    .filter(a => keywords.some(keyword => a.name.includes(keyword)))
+    .reduce((sum, a) => sum + a.count, 0);
+}
+
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,23 +50,24 @@ module.exports = async (req, res) => {
 
   try {
     const benefits = await fetchBenefitsData();
+    
+    if (!Array.isArray(benefits)) {
+      throw new Error('Invalid benefits data received');
+    }
+    
     const audienceCount = {};
     
+    // Process each benefit and count audiences
     for (const benefit of benefits) {
-      if (benefit.targetAudience) {
-        // Split target audiences by comma and clean up
-        const audiences = benefit.targetAudience
-          .split(',')
-          .map(audience => audience.trim())
-          .filter(audience => audience && audience !== '' && !audience.startsWith('"') || audience.endsWith('"'));
-        
-        for (let audience of audiences) {
-          // Clean up audience names
-          audience = audience.replace(/^["']|["']$/g, '').trim();
-          
-          if (audience && audience.length > 0) {
-            audienceCount[audience] = (audienceCount[audience] || 0) + 1;
-          }
+      if (!benefit || typeof benefit !== 'object') {
+        continue;
+      }
+      
+      const audiences = parseAudiences(benefit.targetAudience);
+      
+      for (const audience of audiences) {
+        if (audience.length > 0) {
+          audienceCount[audience] = (audienceCount[audience] || 0) + 1;
         }
       }
     }
@@ -37,59 +77,45 @@ module.exports = async (req, res) => {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
     
-    // Add some common consolidated audiences for easier filtering
-    const commonAudiences = [
-      { name: 'משרתי מילואים', count: audienceList.filter(a => 
-        a.name.includes('משרתי מילואים') || a.name.includes('משרת מילואים') || a.name.includes('מילואים')
-      ).reduce((sum, a) => sum + a.count, 0) },
-      { name: 'עצמאים/ות', count: audienceList.filter(a => 
-        a.name.includes('עצמאים') || a.name.includes('עצמאי')
-      ).reduce((sum, a) => sum + a.count, 0) },
-      { name: 'בעלי עסקים', count: audienceList.filter(a => 
-        a.name.includes('מעסיקים') || a.name.includes('בעלי עסקים') || a.name.includes('בעל עסק')
-      ).reduce((sum, a) => sum + a.count, 0) },
-      { name: 'נפגעי פעולות איבה', count: audienceList.filter(a => 
-        a.name.includes('נפגעי פעולות איבה') || a.name.includes('נפגעי איבה')
-      ).reduce((sum, a) => sum + a.count, 0) },
-      { name: 'נפגעי גוף/נפש', count: audienceList.filter(a => 
-        a.name.includes('נפגעי גוף') || a.name.includes('נפגעי נפש')
-      ).reduce((sum, a) => sum + a.count, 0) },
-      { name: 'תקועים בחו"ל', count: audienceList.filter(a => 
-        a.name.includes('תקועים בחו')
-      ).reduce((sum, a) => sum + a.count, 0) },
-      { name: 'נפגעי רכוש', count: audienceList.filter(a => 
-        a.name.includes('נפגע בית') || a.name.includes('נפגע רכב') || a.name.includes('נפגע עסק')
-      ).reduce((sum, a) => sum + a.count, 0) }
-    ].filter(audience => audience.count > 0);
+    // Create consolidated common audiences
+    const commonAudiences = Object.entries(AUDIENCE_MAPPINGS)
+      .map(([displayName, keywords]) => ({
+        name: displayName,
+        count: calculateConsolidatedCount(audienceList, keywords)
+      }))
+      .filter(audience => audience.count > 0);
     
-    // Combine common audiences with the most frequent specific ones
+    // Get top specific audiences (excluding generic ones)
     const topSpecificAudiences = audienceList
       .filter(audience => 
         !audience.name.includes('כולם') &&
         !audience.name.includes('אנשים פרטיים') &&
-        audience.count >= 3 // Only show audiences that appear in at least 3 benefits
+        audience.count >= MIN_BENEFIT_COUNT
       )
-      .slice(0, 15); // Limit to top 15
+      .slice(0, MAX_SPECIFIC_AUDIENCES);
     
+    // Combine and deduplicate
     const finalAudienceList = [
       ...commonAudiences,
       ...topSpecificAudiences.filter(specific => 
-        !commonAudiences.some(common => 
-          specific.name.includes(common.name.split('/')[0]) || 
-          common.name.includes(specific.name)
-        )
+        !commonAudiences.some(common => {
+          const commonKeywords = AUDIENCE_MAPPINGS[common.name] || [];
+          return commonKeywords.some(keyword => specific.name.includes(keyword));
+        })
       )
     ].sort((a, b) => b.count - a.count);
     
     res.status(200).json({ 
       success: true, 
-      audiences: finalAudienceList 
+      audiences: finalAudienceList,
+      total: finalAudienceList.length
     });
   } catch (error) {
     console.error('Error in audiences endpoint:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch audiences' 
+      error: 'Failed to fetch audiences',
+      message: error.message
     });
   }
 };
