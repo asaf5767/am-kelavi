@@ -684,7 +684,7 @@
              React.createElement('circle', { cx: "6", cy: "5", r: "3" }));
         }
         
-        if (name.includes('מילואים') || name.includes('משרת')) {
+        if (name.includes('מילואים') || name.includes('משרת') || name.includes('משרתי מילואים')) {
           return React.createElement('svg', {
             xmlns: "http://www.w3.org/2000/svg",
             width: "24", height: "24", viewBox: "0 0 24 24",
@@ -782,6 +782,30 @@
              React.createElement('circle', { cx: "7", cy: "18", r: "2" }));
         }
         
+        if (name.includes('בעלי עסקים') || name.includes('מעסיקים')) {
+          return React.createElement('svg', {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "24", height: "24", viewBox: "0 0 24 24",
+            fill: "none", stroke: "currentColor", strokeWidth: "2",
+            strokeLinecap: "round", strokeLinejoin: "round",
+            className: "category-icon text-teal-600"
+          }, React.createElement('path', { d: "M12 12h.01" }),
+             React.createElement('path', { d: "M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" }),
+             React.createElement('path', { d: "M22 13a18.15 18.15 0 0 1-20 0" }),
+             React.createElement('rect', { width: "20", height: "14", x: "2", y: "6", rx: "2" }));
+        }
+        
+        if (name.includes('נפגעי גוף') || name.includes('נפגעי נפש')) {
+          return React.createElement('svg', {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "24", height: "24", viewBox: "0 0 24 24",
+            fill: "none", stroke: "currentColor", strokeWidth: "2",
+            strokeLinecap: "round", strokeLinejoin: "round",
+            className: "category-icon text-teal-600"
+          }, React.createElement('path', { d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5Z" }),
+             React.createElement('path', { d: "M12 5L8 21l4-7 4 7-4-16" }));
+        }
+        
         if (name.includes('עסק') || name.includes('עצמא')) {
           return React.createElement('svg', {
             xmlns: "http://www.w3.org/2000/svg",
@@ -808,45 +832,103 @@
            React.createElement('path', { d: "M12 17h.01" }));
       };
       
+      // Constants
+      const MAX_DISPLAYED_AUDIENCES = 12;
+      const SCROLL_DELAY_MS = 150;
+      const SUGGESTION_DELAY_MS = 300;
+      
       // Main App Component
       const App = () => {
         const [benefits, setBenefits] = useState([]);
         const [categories, setCategories] = useState([]);
+        const [audiences, setAudiences] = useState([]);
+        const [organizations, setOrganizations] = useState([]);
         const [selectedCategory, setSelectedCategory] = useState('');
+        const [selectedAudience, setSelectedAudience] = useState('');
         const [searchQuery, setSearchQuery] = useState('');
         const [showInfo, setShowInfo] = useState(false);
         const [searchSuggestion, setSearchSuggestion] = useState('');
         const [loading, setLoading] = useState(true);
         const [selectedBenefit, setSelectedBenefit] = useState(null);
         const [showModal, setShowModal] = useState(false);
+        const [error, setError] = useState(null);
 
         useEffect(() => {
           fetchCategories();
+          fetchAudiences();
+          fetchOrganizations();
         }, []);
 
         useEffect(() => {
           fetchBenefits();
-        }, [selectedCategory, searchQuery]);
+        }, [selectedCategory, selectedAudience, searchQuery]);
 
         const fetchCategories = async () => {
           try {
+            setError(null);
             const response = await fetch('/api/categories');
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             if (data.success) {
               setCategories(data.categories);
+            } else {
+              throw new Error(data.error || 'Failed to fetch categories');
             }
           } catch (error) {
             console.error('Error fetching categories:', error);
+            setError('שגיאה בטעינת הקטגוריות');
+          }
+        };
+
+        const fetchAudiences = async () => {
+          try {
+            setError(null);
+            const response = await fetch('/api/audiences');
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+              setAudiences(data.audiences);
+            } else {
+              throw new Error(data.error || 'Failed to fetch audiences');
+            }
+          } catch (error) {
+            console.error('Error fetching audiences:', error);
+            setError('שגיאה בטעינת קהלי היעד');
+          }
+        };
+
+        const fetchOrganizations = async () => {
+          try {
+            setError(null);
+            const response = await fetch('/api/organizations');
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+              setOrganizations(data.organizations);
+            } else {
+              throw new Error(data.error || 'Failed to fetch organizations');
+            }
+          } catch (error) {
+            console.error('Error fetching organizations:', error);
+            setError('שגיאה בטעינת הארגונים');
           }
         };
 
         const fetchBenefits = async () => {
           setLoading(true);
+          setError(null);
           try {
             let url = '/api/benefits';
             const params = new URLSearchParams();
             
             if (selectedCategory) params.append('category', selectedCategory);
+            if (selectedAudience) params.append('audience', selectedAudience);
             if (searchQuery) params.append('q', searchQuery);
             
             if (params.toString()) {
@@ -854,13 +936,20 @@
             }
 
             const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             
             if (data.success) {
               setBenefits(data.data);
+            } else {
+              throw new Error(data.error || 'Failed to fetch benefits');
             }
           } catch (error) {
             console.error('Error fetching benefits:', error);
+            setError('שגיאה בטעינת ההטבות');
+            setBenefits([]);
           } finally {
             setLoading(false);
           }
@@ -881,7 +970,15 @@
 
         const handleCategoryChange = (category) => {
           setSelectedCategory(category === selectedCategory ? '' : category);
-          
+          scrollToResults();
+        };
+
+        const handleAudienceChange = (audience) => {
+          setSelectedAudience(audience === selectedAudience ? '' : audience);
+          scrollToResults();
+        };
+
+        const scrollToResults = () => {
           // Auto-scroll to the first benefit card after a short delay
           setTimeout(() => {
             const firstBenefitCard = document.querySelector('.benefits-grid .benefit-card');
@@ -903,7 +1000,7 @@
                 });
               }
             }
-          }, 150);
+          }, SCROLL_DELAY_MS);
         };
 
         // Fuzzy search function
@@ -1054,7 +1151,7 @@
               } else {
                 setSearchSuggestion('');
               }
-            }, 300);
+            }, SUGGESTION_DELAY_MS);
           } else {
             setSearchSuggestion('');
           }
@@ -1232,7 +1329,18 @@
                   className: "font-medium text-yellow-900 underline hover:text-yellow-700"
                 }, `"${searchSuggestion}"`)
               ])
-            ])
+            ]),
+            (selectedCategory || selectedAudience) && React.createElement('div', {
+              key: "clear-filters",
+              className: "mt-2"
+            }, React.createElement('button', {
+              onClick: () => {
+                setSelectedCategory('');
+                setSelectedAudience('');
+                setSearchQuery('');
+              },
+              className: "w-full p-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+            }, "🔄 נקה כל הסינונים"))
           ]),
 
           // Categories Section
@@ -1253,7 +1361,9 @@
                 onClick: () => handleCategoryChange(''),
                 className: `category-btn ${
                   selectedCategory === '' ? 'active' : ''
-                }`
+                }`,
+                'aria-label': 'הצג את כל הקטגוריות',
+                'aria-pressed': selectedCategory === ''
               }, [
                 getCategoryIcon('הכל'),
                 React.createElement('span', {
@@ -1268,13 +1378,119 @@
                   onClick: () => handleCategoryChange(category.name),
                   className: `category-btn ${
                     selectedCategory === category.name ? 'active' : ''
-                  }`
+                  }`,
+                  'aria-label': `סנן לפי קטגוריה ${category.name} (${category.count} הטבות)`,
+                  'aria-pressed': selectedCategory === category.name
                 }, [
                   getCategoryIcon(category.name),
                   React.createElement('span', {
                     className: "category-text",
                     key: "text"
                   }, category.name)
+                ])
+              )
+            ])
+          ]),
+
+          // Target Audience Section
+          React.createElement('section', {
+            className: "mobile-categories",
+            key: "audiences"
+          }, [
+            React.createElement('h2', {
+              key: "title"
+            }, "למי זה מיועד?"),
+            React.createElement('div', {
+              className: "categories-grid",
+              key: "grid"
+            }, [
+              // All audiences button
+              React.createElement('button', {
+                key: "all-audiences",
+                onClick: () => handleAudienceChange(''),
+                className: `category-btn ${
+                  selectedAudience === '' ? 'active' : ''
+                }`,
+                'aria-label': 'הצג הטבות לכולם',
+                'aria-pressed': selectedAudience === ''
+              }, [
+                getCategoryIcon('הכל'),
+                React.createElement('span', {
+                  className: "category-text",
+                  key: "text"
+                }, "כולם")
+              ]),
+              // Audience buttons
+              ...audiences.slice(0, MAX_DISPLAYED_AUDIENCES).map((audience) =>
+                React.createElement('button', {
+                  key: audience.name,
+                  onClick: () => handleAudienceChange(audience.name),
+                  className: `category-btn ${
+                    selectedAudience === audience.name ? 'active' : ''
+                  }`,
+                  'aria-label': `סנן הטבות עבור ${audience.name} (${audience.count} הטבות)`,
+                  'aria-pressed': selectedAudience === audience.name
+                }, [
+                  getCategoryIcon(audience.name),
+                  React.createElement('span', {
+                    className: "category-text",
+                    key: "text"
+                  }, audience.name)
+                ])
+              )
+            ])
+          ]),
+
+          // Organizations Section
+          React.createElement('section', {
+            className: "mobile-categories",
+            key: "organizations"
+          }, [
+            React.createElement('h2', {
+              key: "title"
+            }, "🏛️ רשויות וארגונים"),
+            React.createElement('div', {
+              className: "categories-grid",
+              key: "grid"
+            }, [
+              // All organizations button
+              React.createElement('button', {
+                key: "all-organizations",
+                onClick: () => handleSearchChange(''),
+                className: `category-btn ${
+                  !searchQuery ? 'active' : ''
+                }`,
+                'aria-label': 'הצג הטבות מכל הארגונים',
+                'aria-pressed': !searchQuery
+              }, [
+                getCategoryIcon('הכל'),
+                React.createElement('span', {
+                  className: "category-text",
+                  key: "text"
+                }, "כל הארגונים")
+              ]),
+              // Organization buttons
+              ...organizations.slice(0, 8).map((org) =>
+                React.createElement('button', {
+                  key: org.name,
+                  onClick: () => handleSearchChange(org.name),
+                  className: `category-btn ${
+                    searchQuery === org.name ? 'active' : ''
+                  }`,
+                  'aria-label': `סנן הטבות מ${org.name} (${org.count} הטבות)`,
+                  'aria-pressed': searchQuery === org.name
+                }, [
+                  React.createElement('span', {
+                    className: "text-lg",
+                    key: "icon"
+                  }, org.name.includes('רשות המיסים') ? '💰' : 
+                      org.name.includes('רשות האוכלוסין') ? '📋' :
+                      org.name.includes('רשות החדשנות') ? '🚀' :
+                      org.name.includes('משרד') ? '🏢' : '🏛️'),
+                  React.createElement('span', {
+                    className: "category-text",
+                    key: "text"
+                  }, org.name.length > 15 ? org.name.substring(0, 15) + '...' : org.name)
                 ])
               )
             ])
@@ -1294,7 +1510,9 @@
                 className: "mobile-results-title",
                 key: "title"
               }, searchQuery ? `תוצאות חיפוש עבור "${searchQuery}"` :
+                 selectedCategory && selectedAudience ? `הטבות בקטגוריה "${selectedCategory}" עבור "${selectedAudience}"` :
                  selectedCategory ? `הטבות בקטגוריה "${selectedCategory}"` :
+                 selectedAudience ? `הטבות עבור "${selectedAudience}"` :
                  'כל ההטבות'),
               !loading && React.createElement('div', {
                 className: "mobile-results-count",
@@ -1302,6 +1520,35 @@
               }, `${benefits.length} תוצאות`)
             ]),
 
+            // Error State
+            error ? React.createElement('div', {
+              className: "mobile-empty",
+              key: "error"
+            }, [
+              React.createElement('div', {
+                className: "mobile-empty-icon",
+                key: "icon"
+              }, "⚠️"),
+              React.createElement('h3', {
+                className: "mobile-empty-title",
+                key: "title"
+              }, "שגיאה"),
+              React.createElement('p', {
+                className: "mobile-empty-text",
+                key: "subtitle"
+              }, error),
+              React.createElement('button', {
+                key: "retry",
+                onClick: () => {
+                  setError(null);
+                  fetchBenefits();
+                  fetchCategories();
+                  fetchAudiences();
+                },
+                className: "mt-4 px-4 py-2 bg-calm-blue text-white rounded-lg hover:bg-opacity-90 transition-colors"
+              }, "נסה שוב")
+            ]) :
+            
             // Loading State
             loading ? React.createElement('div', {
               className: "flex justify-center items-center py-20",
