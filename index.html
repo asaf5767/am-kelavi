@@ -842,6 +842,7 @@
         const [benefits, setBenefits] = useState([]);
         const [categories, setCategories] = useState([]);
         const [audiences, setAudiences] = useState([]);
+        const [organizations, setOrganizations] = useState([]);
         const [selectedCategory, setSelectedCategory] = useState('');
         const [selectedAudience, setSelectedAudience] = useState('');
         const [searchQuery, setSearchQuery] = useState('');
@@ -855,6 +856,7 @@
         useEffect(() => {
           fetchCategories();
           fetchAudiences();
+          fetchOrganizations();
         }, []);
 
         useEffect(() => {
@@ -896,6 +898,25 @@
           } catch (error) {
             console.error('Error fetching audiences:', error);
             setError('שגיאה בטעינת קהלי היעד');
+          }
+        };
+
+        const fetchOrganizations = async () => {
+          try {
+            setError(null);
+            const response = await fetch('/api/organizations');
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+              setOrganizations(data.organizations);
+            } else {
+              throw new Error(data.error || 'Failed to fetch organizations');
+            }
+          } catch (error) {
+            console.error('Error fetching organizations:', error);
+            setError('שגיאה בטעינת הארגונים');
           }
         };
 
@@ -1415,6 +1436,61 @@
                     className: "category-text",
                     key: "text"
                   }, audience.name)
+                ])
+              )
+            ])
+          ]),
+
+          // Organizations Section
+          React.createElement('section', {
+            className: "mobile-categories",
+            key: "organizations"
+          }, [
+            React.createElement('h2', {
+              key: "title"
+            }, "🏛️ רשויות וארגונים"),
+            React.createElement('div', {
+              className: "categories-grid",
+              key: "grid"
+            }, [
+              // All organizations button
+              React.createElement('button', {
+                key: "all-organizations",
+                onClick: () => handleSearchChange(''),
+                className: `category-btn ${
+                  !searchQuery ? 'active' : ''
+                }`,
+                'aria-label': 'הצג הטבות מכל הארגונים',
+                'aria-pressed': !searchQuery
+              }, [
+                getCategoryIcon('הכל'),
+                React.createElement('span', {
+                  className: "category-text",
+                  key: "text"
+                }, "כל הארגונים")
+              ]),
+              // Organization buttons
+              ...organizations.slice(0, 8).map((org) =>
+                React.createElement('button', {
+                  key: org.name,
+                  onClick: () => handleSearchChange(org.name),
+                  className: `category-btn ${
+                    searchQuery === org.name ? 'active' : ''
+                  }`,
+                  'aria-label': `סנן הטבות מ${org.name} (${org.count} הטבות)`,
+                  'aria-pressed': searchQuery === org.name
+                }, [
+                  React.createElement('span', {
+                    className: "text-lg",
+                    key: "icon"
+                  }, org.name.includes('רשות המיסים') ? '💰' : 
+                      org.name.includes('רשות האוכלוסין') ? '📋' :
+                      org.name.includes('רשות החדשנות') ? '🚀' :
+                      org.name.includes('משרד') ? '🏢' : '🏛️'),
+                  React.createElement('span', {
+                    className: "category-text",
+                    key: "text"
+                  }, org.name.length > 15 ? org.name.substring(0, 15) + '...' : org.name)
                 ])
               )
             ])

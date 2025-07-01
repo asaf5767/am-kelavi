@@ -18,6 +18,7 @@ app.use(express.static('.'));
 // Import and use our API routes
 const audiencesHandler = require('./api/audiences');
 const searchHandler = require('./api/search');
+const organizationsHandler = require('./api/organizations');
 
 // API Routes
 app.use('/api/benefits', benefitsRoutes);
@@ -25,6 +26,7 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/ai', aiRoutes);
 app.get('/api/audiences', audiencesHandler);
 app.get('/api/search', searchHandler);
+app.get('/api/organizations', organizationsHandler);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

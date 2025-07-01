@@ -3,7 +3,7 @@ const { fetchBenefitsData, enhanceBenefitsForDisplay } = require('../lib/sheets'
 // Shared audience matching logic
 const AUDIENCE_MATCHERS = {
   'משרתי מילואים': (targetAudience) => 
-    ['משרתי מילואים', 'משרת מילואים', 'מילואים'].some(keyword => 
+    ['משרתי מילואים', 'משרת מילואים', 'מילואים', 'מילואים בצו'].some(keyword => 
       targetAudience.includes(keyword)
     ),
   'עצמאים/ות': (targetAudience) => 
@@ -56,8 +56,16 @@ function matchesAudience(benefit, audience) {
   if (!audience) return true;
   
   const targetAudience = benefit.targetAudience ? benefit.targetAudience.toLowerCase() : '';
+  const searchableText = `${benefit.organization} ${benefit.details} ${benefit.category}`.toLowerCase();
   
-  // Use predefined matchers for common audiences
+  // Special handling for "משרתי מילואים" - include benefits that mention "מילואים" anywhere
+  if (audience === 'משרתי מילואים') {
+    return ['משרתי מילואים', 'משרת מילואים', 'מילואים', 'מילואים בצו'].some(keyword => 
+      targetAudience.includes(keyword) || searchableText.includes(keyword)
+    );
+  }
+  
+  // Use predefined matchers for other common audiences
   if (AUDIENCE_MATCHERS[audience]) {
     return AUDIENCE_MATCHERS[audience](targetAudience);
   }
