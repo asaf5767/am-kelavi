@@ -23,7 +23,7 @@ const AUDIENCE_MATCHERS = {
       targetAudience.includes(keyword)
     ),
   'תקועים בחו"ל': (targetAudience) => 
-    ['תקועים בחו', '"תקועים בחו'].some(keyword => 
+    ['תקועים בחו', '"תקועים בחו', '""תקועים בחו'].some(keyword => 
       targetAudience.includes(keyword)
     ),
   'נפגעי רכוש': (targetAudience) => 

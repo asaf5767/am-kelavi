@@ -11,7 +11,7 @@ const AUDIENCE_MAPPINGS = {
   'בעלי עסקים': ['מעסיקים', 'בעלי עסקים', 'בעל עסק'],
   'נפגעי פעולות איבה': ['נפגעי פעולות איבה', 'נפגעי איבה'],
   'נפגעי גוף/נפש': ['נפגעי גוף / נפש', 'נפגעי גוף', 'נפגעי נפש'],
-  'תקועים בחו"ל': ['תקועים בחו', '"תקועים בחו'],
+  'תקועים בחו"ל': ['תקועים בחו', '"תקועים בחו', '""תקועים בחו'],
   'נפגעי רכוש': ['נפגע בית', 'נפגע רכב', 'נפגע עסק', 'נפגעי רכוש']
 };
 
@@ -19,7 +19,11 @@ function cleanAudienceName(audience) {
   if (!audience || typeof audience !== 'string') {
     return '';
   }
-  return audience.replace(/^["']|["']$/g, '').trim();
+  // Remove leading/trailing quotes and extra quotes inside
+  return audience
+    .replace(/^["']|["']$/g, '')  // Remove outer quotes
+    .replace(/["]{2,}/g, '"')     // Replace multiple quotes with single quote
+    .trim();
 }
 
 function parseAudiences(targetAudience) {
@@ -85,6 +89,9 @@ module.exports = async (req, res) => {
       }))
       .filter(audience => audience.count > 0);
     
+    // Debug: Log common audiences to see if משרתי מילואים is included
+    console.log('Common audiences found:', commonAudiences.map(a => `${a.name}: ${a.count}`));
+    
     // Get top specific audiences (excluding generic ones)
     const topSpecificAudiences = audienceList
       .filter(audience => 
@@ -93,6 +100,9 @@ module.exports = async (req, res) => {
         audience.count >= MIN_BENEFIT_COUNT
       )
       .slice(0, MAX_SPECIFIC_AUDIENCES);
+    
+    // Debug: Log top specific audiences  
+    console.log('Top specific audiences:', topSpecificAudiences.map(a => `${a.name}: ${a.count}`));
     
     // Combine and deduplicate
     const finalAudienceList = [
